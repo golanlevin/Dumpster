@@ -1,0 +1,8 @@
+textanalysis/text
+textanalysis/text_cleaned
+p5loader/clip_by_clip/text
+p5loader/clip_by_clip/text_cleaned
+textanalysis/output/distmat_sqrt.png
+textanalysis/output/distmat.png
+textanalysis/output_old/distmat.png
+textanalysis/output_old/distmat_sqrt.png

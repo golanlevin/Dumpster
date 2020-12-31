@@ -1,0 +1,20 @@
+- `catalog.txt` a list of filenames, used by `text.png` (for displaying the text clips)
+- `corp.txt` the corpus, just the words and excluding symbols and rare words
+- `corp_2g.txt` the corpus in 2-grams
+- `distmat.png` distance matrix for the text clips. Excluded by git because it's too large
+- `dsitmat_quant.png` lossy compressed version of distmat.png
+- `distmat_sqrt.png` distance matrix, sqaure-rooted, for the text clips. square root so that the compression will be able to do less damage (high accuracy near the 0 where it matters). Excluded by git because it's too large
+- `distmat_sqrt_quant.png` lossy compressed version of distmat.png.
+- `embed.txt` embedding of single words 2D
+- `embed_2g.txt` embedding of 2-grams 2D
+- `embed_5d.txt` embedding of single words 5D
+- `embed_2g_5d.txt` embedding of 2-grams 5D
+- `embed_text.txt` embedding of text clips 3D
+- `README.md` this file you're reading
+- `text.png` all the text clips encoded as an image
+- `vect.txt` 128D feature vectors for text clips based on 1-grams
+- `vect_2g.txt` 128D feature vectors for text clips based on 2-grams
+- `vectors.txt` 128D feature vectors for words puked by word2vec
+- `vectors_2g.txt` 128D feature vectors for 2-grams puked by word2vec
+- `word.txt` words and their number of occurances in the corpus
+- `word_2g.txt` 2-grams and their number of occurances in the corpus

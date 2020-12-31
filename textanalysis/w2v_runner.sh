@@ -1,0 +1,2 @@
+# time ./libs/word2vec -train output/corp.txt -output output/vectors.txt -cbow 1 -size 128 -window 10 -negative 10 -hs 0 -sample 0 -threads 20 -binary 0 -iter 20 -min-count 0
+time ./libs/word2vec -train output/corp_2g.txt -output output/vectors_2g.txt -cbow 1 -size 128 -window 10 -negative 10 -hs 0 -sample 0 -threads 20 -binary 0 -iter 20 -min-count 0
