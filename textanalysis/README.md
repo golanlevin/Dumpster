@@ -44,3 +44,11 @@ Who output who:
 
 
 For cleaning up html garbage in the text, unzip text.zip, put it in this folder, duplicate it, rename the duplicate to `text_cleaned` and run `cleanup.py`.
+
+---
+
+* textanalysis/output/vect.txt is the coordinate of each clip
+* embed_text.txt is the umap embedding of each clip
+embed_text_2g is the umap embedding of 2 grams of each clip
+
+
