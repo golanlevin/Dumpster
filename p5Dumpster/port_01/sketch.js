@@ -17,16 +17,16 @@ var loadingPeriodStartTime = 0;
 
 //----------------------------------------
 // Asset URLs and filenames
-const textEmbeddingFilename = "data/text_bigrams_umap_3d.tsv";
-const dumpsterImageFilename = "data/dumpster_1010x675.jpg";
+const textEmbeddingFilename         = "data/text_bigrams_umap_3d.tsv";
+const dumpsterImageFilename         = "data/dumpster_1010x675.jpg";
 const breakupSummaryLengthsFilename = "data/breakupSummaryLengths.dat";
-const kamalFlagsFilename = "data/kamalFlags.txt";
-const languageDataFilename = "data/languageData.txt";
-const languageTagsFilename = "data/languageTags.txt";
-const font6Filename = "data/6px2bus.ttf";
-const accessThemesFilename = "data/accessThemes.tsv";
-const breakupsPerDay2005Filename = "data/breakupsPerDay2005.txt";
-const histbgImageFilename =  "data/hist_1010x125.jpg";
+const kamalFlagsFilename            = "data/kamalFlags.txt";
+const languageDataFilename          = "data/languageData.txt";
+const languageTagsFilename          = "data/languageTags.txt";
+const font6Filename                 = "data/6px2bus.ttf";
+const accessThemesFilename          = "data/accessThemes.tsv";
+const breakupsPerDay2005Filename    = "data/breakupsPerDay2005.txt";
+const histbgImageFilename           = "data/hist_1010x125.jpg";
 
 //----------------------------------------
 function setup(){
@@ -37,27 +37,28 @@ function setup(){
 
 //----------------------------------------
 function loadAssets(){
+  var bVerbose = true; 
   loadClips (function(){nAssetsToLoad--;});
   textBigramUmapEmbeddings3D = loadTable (textEmbeddingFilename, 'tsv', function(){
-    print("Loaded text embedding."); nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded text embedding.");} nAssetsToLoad--;});
   dumpsterImg = loadImage (dumpsterImageFilename, function(){
-    print("Loaded main background image."); nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded main background image.");} nAssetsToLoad--;});
   histbgImg = loadImage (histbgImageFilename, function(){
-    print("Loaded secondary background image."); nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded secondary background image.");} nAssetsToLoad--;});
   accessThemes = loadTable(accessThemesFilename, "tsv", function(){
-      print("Loaded access themes."); nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded access themes.");} nAssetsToLoad--;});
   languageData = loadStrings(languageDataFilename, function(){
-    print("Loaded language data."); nAssetsToLoad--;}); 
+    if (bVerbose){ print("Loaded language data.");} nAssetsToLoad--;}); 
   languageTags = loadStrings(languageTagsFilename, function(){
-    print("Loaded language tags."); nAssetsToLoad--;}); 
+    if (bVerbose){ print("Loaded language tags.");} nAssetsToLoad--;}); 
   kamalFlags = loadStrings(kamalFlagsFilename, function(){
-      print("Loaded flagset."); nAssetsToLoad--;}); 
+    if (bVerbose){ print("Loaded flagset.");} nAssetsToLoad--;}); 
   breakupSummaryLengths = loadBytes (breakupSummaryLengthsFilename, function(){
-    print("Loaded breakup summary lengths."); nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded breakup summary lengths.");} nAssetsToLoad--;});
   font6 = loadFont(font6Filename, function(){
-    print("Loaded pixel font."); nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded pixel font.");} nAssetsToLoad--;});
   breakupsPerDay2005 = loadStrings(breakupsPerDay2005Filename, function(){
-    print("Loaded breakup timeline."); nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded breakup timeline.");} nAssetsToLoad--;});
 }
 
 
@@ -101,7 +102,7 @@ function draw(){
   
     var filenames = Object.keys(Files);
     var nFiles = filenames.length;
-    var idx = floor(map(mouseX, 0, width, 0, nFiles));
+    var idx = int(floor(map(mouseX, 0, width, 0, nFiles)));
     var breakupTextPath = filenames[idx];
     if (breakupTextPath){
       text(breakupTextPath,20,30);
@@ -111,6 +112,7 @@ function draw(){
         text(breakupClip,20,80);
       }
     }
+
     
     
     //}

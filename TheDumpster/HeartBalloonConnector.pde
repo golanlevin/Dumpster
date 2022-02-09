@@ -34,7 +34,7 @@ class HeartBalloonConnector {
   void renderConnections() {
 
     
-    smooth();
+    // smooth();
     strokeWeight (1.0);  
     
     int mouseSelectedHeartID = HM.mouseSelectedHeartID;
@@ -122,7 +122,7 @@ class HeartBalloonConnector {
     }
     
     
-    noSmooth();
+    // noSmooth();
     strokeWeight (1.0);  
   }
 
@@ -345,4 +345,3 @@ class HeartBalloonConnector {
     }
   }
 }
-

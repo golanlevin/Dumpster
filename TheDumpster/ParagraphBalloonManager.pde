@@ -189,7 +189,7 @@ class ParagraphBalloonManager {
 
     noTint();
     noStroke();
-    noSmooth();
+    // noSmooth();
 
     textMode(MODEL) ;
     textFont(paragraphFont);

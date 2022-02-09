@@ -476,7 +476,7 @@ public class HeartManager {
     ellipseMode (CENTER);
     // noSmooth();
     noStroke();
-    smooth(); 
+    // smooth(); 
 
     for (int i=0; i<MAX_N_HEARTS; i++) {
       hearts[i].render();
@@ -488,7 +488,7 @@ public class HeartManager {
       hearts[mouseSelectedHeartID].renderMouseSelected();
     } // render the selected heart.
 
-    noSmooth();
+    // noSmooth();
   }
 
 
@@ -702,4 +702,3 @@ public class HeartManager {
     }
   }
 }
-

@@ -448,7 +448,7 @@ class DumpsterHistogram {
 
   //-------------------------------------------------------------
   void drawHistogramData() {
-    noSmooth();
+    // noSmooth();
 
     float fraca, fracb;
     boolean evenWeek, evenDay;
@@ -1006,4 +1006,3 @@ class DumpsterHistogram {
     }
   }
 }
-
