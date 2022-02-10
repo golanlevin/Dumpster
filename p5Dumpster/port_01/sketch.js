@@ -29,6 +29,12 @@ const breakupsPerDay2005Filename    = "data/breakupsPerDay2005.txt";
 const histbgImageFilename           = "data/hist_1010x125.jpg";
 
 //----------------------------------------
+let DH; 
+
+
+
+
+//----------------------------------------
 function setup(){
   createCanvas (DUMPSTER_APP_W, DUMPSTER_APP_H);
   loadingPeriodStartTime = millis();
