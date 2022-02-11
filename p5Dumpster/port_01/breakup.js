@@ -2,36 +2,46 @@ class Breakup {
 
     //=============================================================
     constructor (id) {
-  
-        this.VALID = true;
-        if ((id >= 0) && (id < N_BREAKUP_DATABASE_RECORDS)) {
-          this.bIdValid = true;
-        }
-    
+
         this.ID = id; // 0...20000
         this.age = 0;
         this.sex = 0;
         this.date = 0;
         this.heartRadius = HEART_AVG_RAD;
-        
+
         this.languageData = [];
+        this.languageTags = [];
+        this.bitValues = []; // was int[32];
+
+        this.bIdValid = false;
+        this.b_normalizeByStdvs = false;
+        this.distanceFromCurrBupByLanguage = 0.0;
+        this.langMetric = 0;
+        this.VALID = true;
+
+        this.nBitsSet = 0;
+        this.summaryLen = 0; 
+        this.kamalTags = 0; 
+
+        this.fault = 0;
+        this.instigator = 0;
+        this.accessTags = 0;
+
+        if ((id >= 0) && (id < N_BREAKUP_DATABASE_RECORDS)) {
+          this.bIdValid = true;
+        }
+
         for (var i=0; i<N_BREAKUP_LANGUAGE_DESCRIPTORS; i++) {
             this.languageData[i] = 0.0;
         }
 
-        this.languageTags = [];
         for (var i=0; i<N_BREAKUP_LANGUAGE_BITFLAGS; i++) {
             this.languageTags[i] = 0;
         }
     
-        this.bitValues = [];
         for (var i=0; i<32; i++) {
             this.bitValues[i] = 1<<i;
         }
-
-        this.b_normalizeByStdvs = false;
-        this.distanceFromCurrBupByLanguage = 0.0;
-        this.langMetric = 0;
     }
   
 
@@ -42,52 +52,44 @@ class Breakup {
       switch (method) {
       default:
         case BUP_COMPARE_AGE:
-            if (BR.age < age) {
+          if (BR.age < age) {
             out = -1;
-            } 
-            else if (BR.age == age) {
+          } else if (BR.age == age) {
             out = 0;
-            } 
-            else {
+          } else {
             out = 1;
-            }
-            break;
+          }
+          break;
   
         case BUP_COMPARE_SEX:
-            if (BR.sex < sex) {
+          if (BR.sex < sex) {
             out = -1;
-            } 
-            else if (BR.sex == sex) {
+          } else if (BR.sex == sex) {
             out = 0;
-            } 
-            else {
+          } else {
             out = 1;
-            }
-            break;
+          }
+          break;
   
         case BUP_COMPARE_INSTIG:
-            if (BR.instigator < instigator) {
+          if (BR.instigator < instigator) {
             out = -1;
-            } 
-            else if (BR.instigator == instigator) {
+          } else if (BR.instigator == instigator) {
             out = 0;
-            } 
-            else {
+          } else {
             out = 1;
-            }
-            break; 
+          }
+          break; 
     
         case BUP_COMPARE_LANG:
-            if (BR.langMetric < langMetric) {
+          if (BR.langMetric < langMetric) {
             out = 1;
-            } 
-            else if (BR.langMetric == langMetric) {
+          } else if (BR.langMetric == langMetric) {
             out = 0;
-            } 
-            else {
+          } else {
             out = -1;
-            }
-            break;
+          }
+          break;
       }
   
       return out;
@@ -96,27 +98,27 @@ class Breakup {
     
     //=============================================================
     setAccessTags ( good,  gen,  flt,  instig, themes) {
-        this.VALID 	        = (good > 0) ? true : false;
-        this.sex 		    = gen;
-        this.fault 	        = flt;
-        this.instigator 	= instig;
-        this.accessTags 	= themes;
+      this.VALID 	      = (good > 0) ? true : false;
+      this.sex 		      = gen;
+      this.fault 	      = flt;
+      this.instigator 	= instig;
+      this.accessTags 	= themes;
     }
 
   
     //=============================================================
     setKamalFlags (a, d, kt) {
-        this.age 	        = a;
-        this.date 	    = d;
-        this.kamalTags    = kt;
+      this.age 	        = a;
+      this.date 	      = d;
+      this.kamalTags    = kt;
     }
   
 
     //=============================================================
     setLanguageTags (dat) {
-        for (var i=0; i<N_BREAKUP_LANGUAGE_BITFLAGS; i++) {
-            this.languageTags[i] = dat[i];
-        }
+      for (var i=0; i<N_BREAKUP_LANGUAGE_BITFLAGS; i++) {
+        this.languageTags[i] = dat[i];
+      }
     }
   
 
@@ -202,6 +204,7 @@ class Breakup {
   
   
     //=============================================================
+    // This should be replaced by T-SNE distance. ///GL
     computeLanguageDistance (otherLanguageData) {
       var dval;
       var dist = 0.0;
@@ -275,39 +278,6 @@ class Breakup {
       }
       return out;
     }
-
-
-    //=============================================================
-    /*
-    int ID; // 0....20000
-
-    int age;
-    int sex;
-    int date;
-    int fault;
-    int instigator;
-    int summaryLen;
-    int nBitsSet;
-    float langMetric;
-
-    float languageData[];
-    int 	languageTags[];
-    int 	kamalTags;
-    int 	accessTags;
-
-    boolean b_normalizeByStdvs;
-    boolean bIdValid = false;
-    boolean VALID; 
-
-    float distanceFromCurrBupByLanguage;
-    float heartRadius;
-
-    int bitValues[] = new int[32];
-    final float langTagRelativeValues[] = { 0.80f, 1.00f, 0.50f, 0.40f };
-
-    float NBITSPOW  = (float)( Math.log(0.5) / Math.log(3.97/16.0) );
-    float NLENPOW   = (float)( Math.log(0.5) / Math.log(171.0f/255.0f) );
-    */
 
 }	
   
