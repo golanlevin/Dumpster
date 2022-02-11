@@ -1,353 +1,357 @@
+//-------------------------------------------------------------
+class HistogramDatum {
+  constructor (i, n){
+    this.I=i; // index
+    this.N=n; // number (count)
+  }
+}
+
+
 class DumpsterHistogram {
 
-    /*
-    int width;
-    int height;
-    int xoffset;
-    int yoffset;
-  
-    float mouseX;
-    float mouseY;
-    boolean bMousePressed;
-    boolean bKeyPressed;
-    int key;
-  
-    PFont font6;
-    HistogramColorScheme CS;
-  
-    boolean bUseBogusData;
-    boolean bUseBackgroundImage;
-    boolean bUseMouseYMagnification;
-    PImage histbg;
-  
-    float mouseXf, mouseYf;
-    float mouseBlur = 0.70f;
-    float mousePivot = 0.5f;
-    float mousePower = 1.0f;
-    int   dataIndexOfCursor;
-    float dataValueOfCursor;
-    float centerOfBoundsX;
-  
-    int histogramL, histogramR, histogramW;
-    int histogramT, histogramB, histogramH;
-    float histogramValueScaleFactor;
-    float histogramValueMax;
-    int tmpPixelBounds[];
-  
-    final String bandNames[] = {
-      "Year", "Month", "Week", "Day"
-    };
-     final String monthNames[] = {
-      "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC", "---"
-    };
-     final String dayNames[]   = {
-      "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"
-    };
-     final int monthLengths2005[] = {
-      0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31
-    };
-    int monthStartDays[];
-  
-    Band bands[];
-    int nBands;
-    int bandH;
-  
-    HistogramDatum data[];
-    int nData, nDatam1;
-    int indexLo, indexHi;
-  
-    KnowerOfSelections		KOS;
-    boolean bMouseInside;
-    int hiliteMode; 
-    private static final int NONE = 0;
-    private static final int OVER = 1;
-    private static final int SELE = 2;
-    private static final int MAUS = 3;
-  
-    float curdat_r;
-    float curdat_g;
-    float curdat_b;
-    float curdat_rT;
-    float curdat_gT;
-    float curdat_bT;
-    */
-  
-    //-------------------------------------------------------------
-    constructor (x, y, w, h, kos) {
-        this.KOS = kos; 
+  /*
+  float mouseX;
+  float mouseY;
+  boolean bMousePressed;
+  boolean bKeyPressed;
+  int key;
 
-        this.bMouseInside = false;
-        this.hiliteMode = 0;
+  HistogramColorScheme CS;
 
-        this.width  = w;
-        this.height = h;
-        this.xoffset = x;
-        this.yoffset = y;
+  boolean bUseBogusData;
+  boolean bUseBackgroundImage;
+  boolean bUseMouseYMagnification;
+  PImage histbg;
 
-        // font6 = f6;
-        this.monthLengths2005 = [
-            0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31];
-        this.bandNames = [
-            "Year", "Month", "Week", "Day"];
-        this.monthNames = [
-            "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC", "---"];
-        this.dayNames = [
-            "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  float mouseBlur = 0.70f;
+  float mousePivot = 0.5f;
+  float mousePower = 1.0f;
+  int   dataIndexOfCursor;
+  float dataValueOfCursor;
+  float centerOfBoundsX;
 
-        setupDumpsterHistogram();
-    }
-  
-  
-    //-------------------------------------------------------------
-    setupDumpsterHistogram() {
-  
-        this.CS = new HistogramColorScheme();
-        this.mouseXf = 0;
-        this.mouseYf = 0;
-    
-        this.bUseMouseYMagnification = true;
-        this.bUseBogusData = false;
+  int histogramL, histogramR, histogramW;
+  int histogramT, histogramB, histogramH;
+  float histogramValueScaleFactor;
+  float histogramValueMax;
+  int tmpPixelBounds[];
 
-        if (bUseBogusData) {
-            var I = 0;
-            this.nData = 365;
-            this.nDatam1 = this.nData-1;
-            this.data = []; //new HistogramDatum[nData];
-            for (var i=0; i<this.nData; i++) {
-                var N = Math.round(130.0 * (0.2 + random(0, 1)*0.8));
-                this.data[i] = new HistogramDatum(I, N);
-                I++;
-            }
-            this.indexLo = 0;
-            this.indexHi = 364;
+  int monthStartDays[];
 
-        } else {
+  HistogramDatum data[];
+  int nData, nDatam1;
+  int indexLo, indexHi;
 
-            String lines[] = loadStrings("breakupsPerDay2005.txt"); //FIX
-            var nFileLines = lines.length;
-            this.nData = nFileLines;
-            this.nDatam1 = this.nData-1;
+  KnowerOfSelections		KOS;
 
-            var I = 0;
-            this.data = []; //new HistogramDatum[this.nData];
-            for (var i=0; i < this.nDatam1; i++) {
-                var N = lines[i+1];
-                this.data[i] = new HistogramDatum(I, N);
-                I++;
-            } 
-            this.data[this.nDatam1] = new HistogramDatum(I, 0);
-            this.indexLo = 0;
-            this.indexHi = this.nData-1;
-        }
-  
-        this.mouseBlur  = 0.70;
-        this.mousePivot = 0.5;
-        this.mousePower = 1.0;
-  
-        this.nBands     = 1;
-        this.bandH      = 10;
+  private static final int NONE = 0;
+  private static final int OVER = 1;
+  private static final int SELE = 2;
+  private static final int MAUS = 3;
 
-        this.histogramL = this.xoffset + HEART_WALL_L;
-        this.histogramR = this.xoffset + DUMPSTER_APP_W - 1;
-        this.histogramW = this.histogramR - this.histogramL;
-        this.histogramT = this.yoffset + 0;
-        this.histogramB = this.yoffset + ((DUMPSTER_APP_H+1)-2 - (this.nBands*this.bandH));
-        this.histogramH = this.histogramB - this.histogramT;
-        this.histogramValueScaleFactor = 1.0;
+  float curdat_r;
+  float curdat_g;
+  float curdat_b;
+  float curdat_rT;
+  float curdat_gT;
+  float curdat_bT;
+  */
+  
 
-        this.tmpPixelBounds = [0,0,0,0];// L,R,T,B
-        this.bands = [];
-        for (var i=0; i<this.nBands; i++) {
-            this.bands[i] = new Band(i);
-            this.bands[i].setDimensions (
-                this.histogramL, 
-                (DUMPSTER_APP_H-1 - (this.nBands*this.bandH)) + (this.bandH*i), 
-                this.histogramW, 
-                this.bandH);
-            this.bands[i].computeBoundaries();
-        }
-  
-        this.monthStartDays = [];
-        var count = -1; 
-        for (var i=0; i<13; i++) {
-            this.monthStartDays[i] = count;
-            count += this.monthLengths2005[i+1];
-        }
-    }
-  
-  
-    //-------------------------------------------------------------
-    cursorToPixelBounds() {
-        // search downward and upward from the cursor pixel,
-        // whose data index we (are required to) also know.
-    
-        var mouseXi = floor(this.mouseXf);
-        mouseXi = max(this.histogramL, min(this.histogramR-1, mouseXi));
-    
-        var fraca;
-        var fracb;
-        var indexa = 0;
-        var indexb = 0;
-        var pixela = -1;
-        var pixelb = -1;
-    
-        pixela = dataIndexToPixel(this.dataIndexOfCursor);
-        if ((this.dataIndexOfCursor < (this.indexHi-1)) && 
-            (mouseXi < (this.histogramR-1))) {
-            pixelb = dataIndexToPixel(this.dataIndexOfCursor+1);
-        } else {
-            pixelb = this.histogramR-1;
-        }
-        // patch a problem which appears in highly compressed situations.
-        if (pixelb < pixela) {
-            pixelb = pixela;
-        }
-    
-        // note that tmpPixelBounds[2] and [3] are set in drawHistogramData().
-        this.tmpPixelBounds[0] = pixela;
-        this.tmpPixelBounds[1] = pixelb;
-        return tmpPixelBounds;
-    }
-  
-    //-------------------------------------------------------------
-    // inverse warping yields two results:
-    // frac = mousePivot * (1.0 - pow((1.0-(warped/mousePivot)), 1.0/mousePower));
-    // frac = mousePivot + (1.0-mousePivot)*pow((warped - mousePivot)/(1.0-mousePivot), 1.0/mousePower);
-    dataIndexToPixel (index) {
-        var pix = -1;
-        var frac = 0.5;
-        if ((index >= this.indexLo) && (index < this.indexHi)) {
-            var warped = (this.index - this.indexLo)/(this.indexHi - this.indexLo);
-            if (index <= this.dataIndexOfCursor) {
-                frac = mousePivot * (1.0 -  pow((1.0-(warped/mousePivot)), 1.0/this.mousePower));
-            } 
-            else {
-                frac = mousePivot + (1.0-mousePivot)* pow((warped - mousePivot)/(1.0-mousePivot), 1.0/this.mousePower);
-            }
-            pix = round(histogramL + frac*histogramW);
-        }
-        return pix;
-    }
-  
-    //-------------------------------------------------------------
-    int pixelToDataIndex (int hpixel) {
-  
-      float fraca = (float)(hpixel-histogramL)/(float)histogramW;
-      fraca = min(1.0f, max(0.0, fraca));
-      fraca = warpFraction(fraca, this.mousePower);
-  
-      float nDataToShowf = (float)(indexHi - indexLo);
-      int indexa = indexLo + (int)floor(fraca * nDataToShowf);
-      indexa = min(indexHi, max(indexLo, indexa));
-      return indexa;
-    }
-  
-    void keyPressed(char k) {
-      key = k;
-      bKeyPressed = true;
-      if (key == 'a') {
-        for (int i=0; i<nData; i++) {
-          data[i].N += 10;
-        }
+
+
+  //-------------------------------------------------------------
+  constructor (f6, bpd05, x, y, w, h, kos) {
+
+    this.font6 = f6;
+    this.KOS = kos; 
+    this.breakupsPerDay2005 = bpd05;
+
+    this.bMouseInside = false;
+    this.hiliteMode = 0;
+
+    this.width  = w;
+    this.height = h;
+    this.xoffset = x;
+    this.yoffset = y;
+
+    // font6 = f6;
+    this.monthLengths2005 = [
+        0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31];
+    this.bandNames = [
+        "Year", "Month", "Week", "Day"];
+    this.monthNames = [
+        "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC", "---"];
+    this.dayNames = [
+        "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+    this.bands = [];
+    this.nBands = 0;
+    this.bandH = 0;
+
+    this.CS = new HistogramColorScheme();
+    this.mouseXf = 0;
+    this.mouseYf = 0;
+    this.bUseMouseYMagnification = true;
+
+    this.bUseBogusData = false;
+    this.setupDumpsterHistogram();
+
+    this.skipList = [
+      1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000];
+    this.FADE_LABEL_TIME  = 333.3;
+    this.majorLabelSkip     = 100;
+    this.prevMajorLabelSkip = 250;
+    this.labelSkipTime      = 0;
+
+  }
+
+  //-------------------------------------------------------------
+  setupDumpsterHistogram() {
+
+    if (this.bUseBogusData) {
+      var I = 0;
+      this.nData = 365;
+      this.nDatam1 = this.nData-1;
+      this.data = [];
+      for (var i=0; i<this.nData; i++) {
+        var N = int(round(130.0 * (0.2 + random(0, 1)*0.8)));
+        this.data[i] = new HistogramDatum(I, N);
+        I++;
+      }
+      this.indexLo = 0;
+      this.indexHi = 364;
+
+    } else {
+      var nFileLines = breakupsPerDay2005.length;
+      this.nData = nFileLines;
+      this.nDatam1 = this.nData-1;
+
+      var I = 0;
+      this.data = []; //new HistogramDatum[this.nData];
+      for (var i=0; i < this.nDatam1; i++) {
+        var N = breakupsPerDay2005[i+1];
+        this.data[i] = new HistogramDatum(I, N);
+        I++;
       } 
-      else if (key == 'b') {
-        for (int i=0; i<nData; i++) {
-          data[i].N -= 10;
-        }
-      }
+      this.data[this.nDatam1] = new HistogramDatum(I, 0);
+      this.indexLo = 0;
+      this.indexHi = this.nData-1;
+    }
+
+    this.mouseBlur  = 0.70;
+    this.mousePivot = 0.5;
+    this.mousePower = 1.0;
+
+    this.nBands     = 1;
+    this.bandH      = 10;
+
+    this.histogramL = this.xoffset + HEART_WALL_L;
+    this.histogramR = this.xoffset + DUMPSTER_APP_W - 1;
+    this.histogramW = this.histogramR - this.histogramL;
+    this.histogramT = this.yoffset + 0;
+    this.histogramB = this.yoffset + ((DUMPSTER_APP_H+1)-2 - (this.nBands*this.bandH));
+    this.histogramH = this.histogramB - this.histogramT;
+    this.histogramValueScaleFactor = 1.0;
+
+    this.tmpPixelBounds = [0,0,0,0]; // L,R,T,B
+    this.bands = [];
+    for (var i=0; i<this.nBands; i++) {
+      this.bands[i] = new Band(i, this.bandNames, this.monthLengths2005);
+      this.bands[i].setDimensions (
+        this.histogramL, 
+        (DUMPSTER_APP_H-1 - (this.nBands*this.bandH)) + (this.bandH*i), 
+        this.histogramW, 
+        this.bandH);
+      this.bands[i].computeBoundaries();
+    }
+
+    this.monthStartDays = [];
+    var count = -1; 
+    for (var i=0; i<13; i++) {
+      this.monthStartDays[i] = count;
+      count += this.monthLengths2005[i+1];
+    }
+  }
+
+  //-------------------------------------------------------------
+  cursorToPixelBounds() {
+    // search downward and upward from the cursor pixel,
+    // whose data index we (are required to) also know.
+
+    var mouseXi = floor(this.mouseXf);
+    mouseXi = max(this.histogramL, min(this.histogramR-1, mouseXi));
+
+    var pixela = -1;
+    var pixelb = -1;
+  
+    pixela = dataIndexToPixel(this.dataIndexOfCursor);
+    if ((this.dataIndexOfCursor < (this.indexHi-1)) && 
+      (mouseXi < (this.histogramR-1))) {
+      pixelb = dataIndexToPixel(this.dataIndexOfCursor+1);
+    } else {
+      pixelb = this.histogramR-1;
+    }
+    // patch a problem which appears in highly compressed situations.
+    if (pixelb < pixela) {
+      pixelb = pixela;
     }
   
-    //-------------------------------------------------------------
-    String dataIndexToDateString (int index) {	
-      String out = "";
-      if ((index >= 0) && (index < nData)) {
-        int monthCount = 0;
-        while ( (index > monthStartDays[monthCount]) && (monthCount < 12)) {
-          monthCount++;
-        }
-        monthCount--;
-  
-        out = dayNames[index%7] + " " + this.monthNames[(monthCount%12)] + " " + (index - monthStartDays[monthCount]);
+    // note that tmpPixelBounds[2] and [3] are set in drawHistogramData().
+    this.tmpPixelBounds[0] = pixela;
+    this.tmpPixelBounds[1] = pixelb;
+    return tmpPixelBounds;
+  }
+
+  //-------------------------------------------------------------
+  // inverse warping yields two results:
+  // frac = mousePivot * (1.0 - pow((1.0-(warped/mousePivot)), 1.0/mousePower));
+  // frac = mousePivot + (1.0-mousePivot)*pow((warped - mousePivot)/(1.0-mousePivot), 1.0/mousePower);
+  dataIndexToPixel (index) {
+    var pix = -1;
+    var frac = 0.5;
+    if ((index >= this.indexLo) && (index < this.indexHi)) {
+      var warped = (this.index - this.indexLo)/(this.indexHi - this.indexLo);
+      if (index <= this.dataIndexOfCursor) {
+        frac = mousePivot * (1.0 -  pow((1.0-(warped/mousePivot)), 1.0/this.mousePower));
+      } else {
+        frac = mousePivot + (1.0-mousePivot)* pow((warped - mousePivot)/(1.0-mousePivot), 1.0/this.mousePower);
       }
-      return out;
+      pix = round(histogramL + frac*histogramW);
     }
-  
-    //-------------------------------------------------------------
-    void updateHistogramVerticalScale() {
-      histogramValueMax       = (float) getMaxDataValueInIndexRange(indexLo, indexHi);
-      histogramValueMax       = max(1.0f, histogramValueMax);
-      float targetHeight      = (float) histogramH * HISTOGRAM_SPACE_OCCUPANCY;
-      histogramValueScaleFactor  = targetHeight / histogramValueMax;
+    return pix;
+  }
+
+  //-------------------------------------------------------------------
+  warpFraction ( frac, power) {
+    var output = frac;
+    var cube;
+
+    if (frac <= this.mousePivot) {
+      cube = 1 - (frac/this.mousePivot);
+      cube = pow (cube, power);
+      output  = this.mousePivot * (1-cube);
+    } 
+    else {
+      var oneMpivot = 1.0-this.mousePivot;
+      cube = (frac-this.mousePivot)/(oneMpivot);
+      cube = pow (cube, power);
+      output  = this.mousePivot + oneMpivot*cube;
     }
-  
-    //-------------------------------------------------------------
-    final int skipList[]   = {
-      1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000
-    };
-    final int skipListSize = skipList.length;
-    float FADE_LABEL_TIME  = 333.3;
-    int majorLabelSkip     = 100;
-    int prevMajorLabelSkip = 250;
-    int labelSkipTime      = 0;
-    //-------------------------------------------------------------
-    // a surprising amount of code is necessary to render the labels correctly.
-    void drawHistogramVerticalScale() {
-      int now  = (int)System.currentTimeMillis();
-  
-      // dimension the vertical label.
-      int vertL = 0;
-      int vertR = histogramL;
-      int vertW = vertR - vertL;
-      int vertT = histogramT;
-      int vertB = histogramB;
-      int vertH = histogramH;
-      float vertHf = (float)vertH;
-      int vertTextT = vertT + 9;
-      float keyFontAscent = 8.0;
-      float labelDensity = 6;//12.0;
-      int charW = 4;
-  
-      float vertTxCol = CS.vertTxCol;
-      float vertLnCol = CS.vertLnCol;
-      float vertBgCol = CS.vertBgCol;
-  
-      // fill the background of the vertical indicator.
-      noStroke();
-      fill  (vertBgCol);
-      rect  (vertL, vertT, vertW, vertH);
-  
-      // textSpace (OBJECT_SPACE); 
-      textFont  (font6, 6);
-  
-      // hunt for the label that fits.
-      int prevMLS = majorLabelSkip;
-      majorLabelSkip = max(1, (int)(keyFontAscent*labelDensity/(vertHf/histogramValueMax)));
-      int ind = skipListSize-1;
-      int skindex = 0;
-      float minn = 1000000;
-      while (ind >= 0) {
-        float fact = (float)skipList[ind]/(float)majorLabelSkip;
-        if (abs(fact - 1) < minn) {
-          minn = fact;
-          skindex = ind;
-        }
-        ind--;
+    return output;
+  }
+   
+  //-------------------------------------------------------------
+  pixelToDataIndex (hpixel) {
+    var fraca = float(hpixel-histogramL)/ histogramW;
+    fraca = min(1.0, max(0.0, fraca));
+    fraca = warpFraction (fraca, this.mousePower);
+
+    var nDataToShowf = float(indexHi - indexLo);
+    var indexa = indexLo + int(floor(fraca * nDataToShowf));
+    indexa = min(indexHi, max(indexLo, indexa));
+    return indexa;
+  }
+
+  //-------------------------------------------------------------
+  dataIndexToDateString (index) {	
+    var out = "";
+    if ((index >= 0) && (index < nData)) {
+      var monthCount = 0;
+      while ( (index > this.monthStartDays[monthCount]) && (monthCount < 12)) {
+        monthCount++;
       }
-      skindex = max(0, min(skindex, skipListSize-1));
-      majorLabelSkip = skipList[skindex];
-      if (prevMLS != majorLabelSkip) {
-        prevMajorLabelSkip = prevMLS;
-        labelSkipTime = now;
+      monthCount--;
+      out = dayNames[index%7] + " " + this.monthNames[(monthCount%12)] + " " + (index - this.monthStartDays[monthCount]);
+    }
+    return out;
+  }
+
+  //-------------------------------------------------------------
+  getMaxDataValueInIndexRange(loi, hii) {
+    loi = max(0, min(this.nDatam1, loi));
+    hii = max(0, min(this.nDatam1, hii));
+
+    var maxInRange = 0;
+    var rawDataValue = 0;
+    for (var i=loi; i<hii; i++) {
+      rawDataValue = this.data[i].N;
+      if (rawDataValue > maxInRange) {
+        maxInRange = rawDataValue;
       }
-      float spaceSizeMaj  = majorLabelSkip * histogramValueScaleFactor;
-      float spaceSizePrev = prevMajorLabelSkip * histogramValueScaleFactor;
+    }
+    return maxInRange;
+  }
+
+  //-------------------------------------------------------------
+  updateHistogramVerticalScale() {
+    this.histogramValueMax  = getMaxDataValueInIndexRange(indexLo, indexHi);
+    this.histogramValueMax  = max(1.0, histogramValueMax);
+    var targetHeight        = histogramH * HISTOGRAM_SPACE_OCCUPANCY;
+    this.histogramValueScaleFactor = targetHeight / this.histogramValueMax;
+  }
+
+  //-------------------------------------------------------------
+  // a surprising amount of code is necessary to render the labels correctly.
+  drawHistogramVerticalScale() {
+
+    var now = millis();
+
+    // dimension the vertical label.
+    var vertL = 0;
+    var vertR = this.histogramL;
+    var vertW = vertR - vertL;
+    var vertT = this.histogramT;
+    var vertB = this.histogramB;
+    var vertH = this.histogramH;
+    var vertHf = float(vertH);
+    var vertTextT = vertT + 9;
+    var keyFontAscent = 8.0;
+    var labelDensity = 6;//12.0;
+    var charW = 4;
+
+    var vertTxCol = this.CS.vertTxCol;
+    var vertLnCol = this.CS.vertLnCol;
+    var vertBgCol = this.CS.vertBgCol;
   
+    // fill the background of the vertical indicator.
+    noStroke();
+    fill (vertBgCol);
+    rect (vertL, vertT, vertW, vertH);
+
+    textFont  (this.font6, 6); // use the global-global version? 
+  
+    // hunt for the label that fits.
+    var prevMLS = this.majorLabelSkip;
+    this.majorLabelSkip = max(1, floor(keyFontAscent*labelDensity/(vertHf/this.histogramValueMax)));
+    var ind = this.skipList.length-1;
+    var skindex = 0;
+    var minn = 1000000;
+    while (ind >= 0) {
+      var fact = float(this.skipList[ind]) / this.majorLabelSkip;
+      if (abs(fact - 1) < minn) {
+        minn = fact;
+        skindex = ind;
+      }
+      ind--;
+    }
+
+    skindex = max(0, min(skindex, this.skipList.length-1));
+    this.majorLabelSkip = this.skipList[skindex];
+    if (prevMLS != this.majorLabelSkip) {
+      this.prevMajorLabelSkip = prevMLS;
+      this.labelSkipTime = now;
+    }
+    var spaceSizeMaj  = this.majorLabelSkip * this.histogramValueScaleFactor;
+    var spaceSizePrev = this.prevMajorLabelSkip * this.histogramValueScaleFactor;
+  
+      /*
       // draw the main labels.
       int count;
       int nChars;
       float labelY;
       String labelStr;
-      float visibility = (float)(now - labelSkipTime)/FADE_LABEL_TIME; /// 0...->1
+      float visibility = (float)(now - this.labelSkipTime)/this.FADE_LABEL_TIME; /// 0...->1
       if (visibility < 1.0) {
   
         // fade labels in and out
@@ -361,7 +365,7 @@ class DumpsterHistogram {
         count = 1;
         fill  (tgr, tgr, tgr);
         while (labelY > vertTextT) {
-          int labelInt = count*prevMajorLabelSkip;
+          int labelInt = count * this.prevMajorLabelSkip;
           if ((labelInt%majorLabelSkip) != 0) {
             int labelYi = (int)round(labelY);
             beginShape(LINES);
@@ -384,7 +388,7 @@ class DumpsterHistogram {
         count = 1;
         while (labelY > vertTextT) {
           int labelInt = count*majorLabelSkip;
-          if ((labelInt%prevMajorLabelSkip) == 0) {
+          if ((labelInt % this.prevMajorLabelSkip) == 0) {
             stroke(vertLnCol);
             fill  (vertTxCol);
           } 
@@ -421,14 +425,20 @@ class DumpsterHistogram {
           vertex(vertR, labelYi);
           endShape();
   
-          labelStr = String.valueOf(count*majorLabelSkip);
+          labelStr = String.valueOf(count * this.majorLabelSkip);
           nChars = labelStr.length();
           text(labelStr, (vertR-nChars*charW-1), labelYi-2);
           labelY -= spaceSizeMaj;
           count++;
         }
       }
+      */
+
+
     }
+
+
+    /* ////
   
     //-------------------------------------------------------------
     drawHistogramData(){
@@ -534,21 +544,7 @@ class DumpsterHistogram {
       }
     }
   
-    //-------------------------------------------------------------
-    int getMaxDataValueInIndexRange(int loi, int hii) {
-      loi = max(0, min(nDatam1, loi));
-      hii = max(0, min(nDatam1, hii));
-  
-      int maxInRange = 0;
-      int rawDataValue = 0;
-      for (int i=loi; i<hii; i++) {
-        rawDataValue = data[i].N;
-        if (rawDataValue > maxInRange) {
-          maxInRange = rawDataValue;
-        }
-      }
-      return maxInRange;
-    }
+    
   
     //-------------------------------------------------------------
     void loop() {
@@ -720,24 +716,7 @@ class DumpsterHistogram {
       this.mousePivot = max(0.0000001f, min(0.999999f, mousePivot));
     }
   
-    //-------------------------------------------------------------------
-    warpFraction ( frac, power) {
-      var output = frac;
-      var cube;
-  
-      if (frac <= this.mousePivot) {
-        cube = 1 - (frac/this.mousePivot);
-        cube = pow (cube, power);
-        output  = this.mousePivot * (1-cube);
-      } 
-      else {
-        float oneMpivot = 1-this.mousePivot;
-        cube = (frac-this.mousePivot)/(oneMpivot);
-        cube = pow (cube, power);
-        output  = this.mousePivot + oneMpivot*cube;
-      }
-      return output;
-    }
+    
   
     //-------------------------------------------------------------
     drawBackground() {
@@ -784,156 +763,182 @@ class DumpsterHistogram {
       line(histogramL-1, histogramT, histogramL-1, histogramT+height-1);
       line(xoffset, histogramB, histogramL, histogramB);
     }
-  
 
 
-
-    //-------------------------------------------------------------
-    class Band {
-  
-        constructor (position) {
-            this.ID = position;
-            this.name = bandNames[ID];
-            this.nBoundaries = 0;
+        void keyPressed(char k) {
+      key = k;
+      bKeyPressed = true;
+      if (key == 'a') {
+        for (int i=0; i<nData; i++) {
+          data[i].N += 10;
         }
-  
-        setDimensions (l, t, w, h) {
-            this.W = w;
-            this.H = h;
-            this.L = l;
-            this.T = t;
-            this.R = L+W;
-            this.B = T+H;
+      } 
+      else if (key == 'b') {
+        for (int i=0; i<nData; i++) {
+          data[i].N -= 10;
         }
-  
-        render() {
-            noStroke();//
-            fill (CS.bandBgCol);
-            rect (this.L, this.T, this.W, this.H);
-
-            stroke(CS.bandEdgeColor);
-            noFill();
-            rect(this.L-1, this.T, this.W+1, this.H);
-        }
-  
-        //-------------------------------------------------------------
-        drawBoundaries() {
-            if (nBoundaries > 0) {
-    
-                var boundaryIndex;
-                var boundaryPixel = 0;
-                var boundaryPixelPrev = 0;
-        
-                // compute the locations of the boundary marks,
-                // and their distances from one to the next.
-                for (var i=1; i<nBoundaries; i++) {
-                    // fetch the pre-stored day at which a boundary occurs.
-                    boundaryIndex = this.boundaries[i];
-        
-                    // compute the pixel at which the boundary should be drawn.
-                    boundaryPixel   = dataIndexToPixel (boundaryIndex);
-                    if (boundaryPixel == -1) {
-                        boundaryPixel = histogramR;
-                    } 
-        
-                    this.boundaryLocs[i]   = boundaryPixel;
-                    this.boundarySeps[i-1] = boundaryPixel - boundaryPixelPrev;
-                    boundaryPixelPrev = boundaryPixel;
-                }
-                var sep = 0;
-                var loc = 0;
-                var top = floor(T)+1;
-                var bot = floor(B)-1;
-                var mid = (top+bot)/2;
-                var texbot = bot-1;
-        
-                stroke(CS.vertLnCol);
-                textFont(font6);
-                textSize(6);
-        
-                var txC = CS.vertTxCol;
-                var bgC = CS.bandBgCol;
-                var difC = bgC - txC;
-                var minSep = 0;
-                var maxSep = 80;
-                var texfill;
-                var texfrac;
-        
-                for (var i=0; i<nBoundaries; i++) {
-                    sep = this.boundarySeps[i];
-                    loc = this.boundaryLocs[i];
-                    if ((loc == 0) && (i==0)) loc = histogramL; // WOW big ERROR
-        
-                    if (i > 0) {
-                        line (loc, top, loc, bot);
-                    }
-        
-                    texfrac = max(0, min((sep-minSep), maxSep))/maxSep;
-                    texfill = txC + difC*(1.0 - texfrac);
-                    fill (0, 0, 0);//texfill);
-                    text(this.monthNames[i%12], loc+3, texbot);
-                }
-            }
-        }
-  
-  
-    //-------------------------------------------------------------
-    computeBoundaries() {
-        // compute the days at which there are scale-specific data boundaries.
-        // for example, multiples of 7 for weeks, month-boundaries, and year-boundaries.
-        // weeks are the finest level of granularity we care about here.
-        var maxPossibleNboundaries = this.nData;
-        this.boundaries = [];
-        this.boundaryLocs = [];
-        this.boundarySeps = [];
-        this.nBoundaries = 0;
-        for (var i=0; i<maxPossibleNboundaries; i++){
-            this.boundaries[i] = 0;
-            this.boundaryLocs[i] = 0;
-            this.boundarySeps[i] = 0;
-        }
-
-        var count = 0;
-        switch(this.ID) {
-        
-            //--------------------------
-            case 1: // WEEKS
-                for (var i=0; i<this.nData; i++) {
-                    if (i%7 == 0) {
-                    this.boundaries[count] = i;
-                    count++;
-                    }
-                }
-                this.nBoundaries = count;
-                break;
-    
-            //--------------------------
-            case 0: // MONTHS
-                var dayCount = 0;
-                var nMos = this.monthLengths2005.length;
-                for (var i=0; i<nMos; i++) {
-                    dayCount += this.monthLengths2005[i];
-                    this.boundaries[count] = dayCount;
-                    count++;
-                }
-                this.nBoundaries = count;
-                break;
-    
-            //--------------------------
-            case -1: // YEARS
-                for (var i=0; i<this.nData; i++) {
-                    if (i%365 == 0) {
-                        this.boundaries[count] = i;
-                        count++;
-                    }
-                }
-                this.nBoundaries = count;
-                break;
-            
-            //--------------------------
-            default:
-                break;
-        }
+      }
     }
-    }
+  
+
+    ///// */
+
 }
+
+
+
+//-------------------------------------------------------------
+class Band {
+
+  constructor (position, bandNames, ml05) {
+    this.ID = position;
+    this.name = bandNames[this.ID];
+    this.nBoundaries = 0;
+    this.monthLengths2005 = ml05;
+  }
+
+  //------------------
+  setDimensions (l, t, w, h) {
+    this.W = w;
+    this.H = h;
+    this.L = l;
+    this.T = t;
+    this.R = this.L+this.W;
+    this.B = this.T+this.H;
+  }
+  
+  //------------------
+  render() {
+    noStroke();
+    fill (CS.bandBgCol);
+    rect (this.L, this.T, this.W, this.H);
+
+    stroke(CS.bandEdgeColor);
+    noFill();
+    rect(this.L-1, this.T, this.W+1, this.H);
+  }
+  
+  //------------------
+  drawBoundaries() {
+    if (nBoundaries > 0) {
+
+      var boundaryIndex;
+      var boundaryPixel = 0;
+      var boundaryPixelPrev = 0;
+
+      // compute the locations of the boundary marks,
+      // and their distances from one to the next.
+      for (var i=1; i<nBoundaries; i++) {
+        // fetch the pre-stored day at which a boundary occurs.
+        boundaryIndex = this.boundaries[i];
+
+        // compute the pixel at which the boundary should be drawn.
+        boundaryPixel   = dataIndexToPixel (boundaryIndex);
+        if (boundaryPixel == -1) {
+          boundaryPixel = histogramR;
+        } 
+
+        this.boundaryLocs[i]   = boundaryPixel;
+        this.boundarySeps[i-1] = boundaryPixel - boundaryPixelPrev;
+        boundaryPixelPrev = boundaryPixel;
+      }
+
+      var sep = 0;
+      var loc = 0;
+      var top = floor(T)+1;
+      var bot = floor(B)-1;
+      var mid = (top+bot)/2;
+      var texbot = bot-1;
+
+      stroke(CS.vertLnCol);
+      textFont(font6);
+      textSize(6);
+
+      var txC = CS.vertTxCol;
+      var bgC = CS.bandBgCol;
+      var difC = bgC - txC;
+      var minSep = 0;
+      var maxSep = 80;
+      var texfill;
+      var texfrac;
+
+      for (var i=0; i<nBoundaries; i++) {
+        sep = this.boundarySeps[i];
+        loc = this.boundaryLocs[i];
+        if ((loc == 0) && (i==0)) loc = histogramL; // WOW big ERROR
+
+        if (i > 0) {
+          line (loc, top, loc, bot);
+        }
+
+        texfrac = max(0, min((sep-minSep), maxSep))/maxSep;
+        texfill = txC + difC*(1.0 - texfrac);
+        fill (0, 0, 0);//texfill);
+        text(this.monthNames[i%12], loc+3, texbot);
+      }
+    }
+  }
+  
+  
+  //------------------
+  computeBoundaries() {
+
+    // compute the days at which there are scale-specific data boundaries.
+    // for example, multiples of 7 for weeks, month-boundaries, and year-boundaries.
+    // weeks are the finest level of granularity we care about here.
+    var maxPossibleNboundaries = this.nData;
+    this.boundaries = [];
+    this.boundaryLocs = [];
+    this.boundarySeps = [];
+    this.nBoundaries = 0;
+    for (var i=0; i<maxPossibleNboundaries; i++){
+      this.boundaries[i] = 0;
+      this.boundaryLocs[i] = 0;
+      this.boundarySeps[i] = 0;
+    }
+
+    var count = 0;
+    switch(this.ID) {
+        
+      //--------------
+      case 1: // WEEKS
+        for (var i=0; i<this.nData; i++) {
+          if (i%7 == 0) {
+            this.boundaries[count] = i;
+            count++;
+          }
+        }
+        this.nBoundaries = count;
+        break;
+
+      //--------------
+      case 0: // MONTHS
+        var dayCount = 0;
+        var nMos = this.monthLengths2005.length;
+        for (var i=0; i<nMos; i++) {
+          dayCount += this.monthLengths2005[i];
+          this.boundaries[count] = dayCount;
+          count++;
+        }
+        this.nBoundaries = count;
+        break;
+    
+      //--------------
+      case -1: // YEARS
+        for (var i=0; i<this.nData; i++) {
+          if (i%365 == 0) {
+            this.boundaries[count] = i;
+            count++;
+          }
+        }
+        this.nBoundaries = count;
+        break;
+      
+      //--------------
+      default:
+        break;
+    }
+  }
+}
+
+

@@ -39,12 +39,16 @@ function setup(){
   createCanvas (DUMPSTER_APP_W, DUMPSTER_APP_H);
   loadingPeriodStartTime = millis();
   setTimeout(loadAssets,loadingPeriodDuration);
+
+  
 }
 
 //----------------------------------------
 function loadAssets(){
   var bVerbose = true; 
   loadClips (function(){nAssetsToLoad--;});
+
+  
   textBigramUmapEmbeddings3D = loadTable (textEmbeddingFilename, 'tsv', function(){
     if (bVerbose){ print("Loaded text embedding.");} nAssetsToLoad--;});
   dumpsterImg = loadImage (dumpsterImageFilename, function(){
@@ -63,8 +67,23 @@ function loadAssets(){
     if (bVerbose){ print("Loaded breakup summary lengths.");} nAssetsToLoad--;});
   font6 = loadFont(font6Filename, function(){
     if (bVerbose){ print("Loaded pixel font.");} nAssetsToLoad--;});
+  
+  breakupsPerDay2005 = loadStrings(breakupsPerDay2005Filename, gotBreakupsPerDay2005);
+  /*
   breakupsPerDay2005 = loadStrings(breakupsPerDay2005Filename, function(){
-    if (bVerbose){ print("Loaded breakup timeline.");} nAssetsToLoad--;});
+    if (bVerbose){ print("Loaded breakup timeline.");} nAssetsToLoad--;} );
+  */
+}
+
+//----------------------------------------
+function gotBreakupsPerDay2005(bpd05){
+  var bVerbose = true; 
+  if (bVerbose){ 
+    print("Loaded breakup timeline.");
+  } 
+  nAssetsToLoad--;
+  var KOS = null; 
+  DH  = new DumpsterHistogram (font6, bpd05, 0, HEART_WALL_B, DUMPSTER_APP_W, HISTOGRAM_H, KOS);
 }
 
 
