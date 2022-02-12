@@ -69,10 +69,6 @@ function loadAssets(){
     if (bVerbose){ print("Loaded pixel font.");} nAssetsToLoad--;});
   
   breakupsPerDay2005 = loadStrings(breakupsPerDay2005Filename, gotBreakupsPerDay2005);
-  /*
-  breakupsPerDay2005 = loadStrings(breakupsPerDay2005Filename, function(){
-    if (bVerbose){ print("Loaded breakup timeline.");} nAssetsToLoad--;} );
-  */
 }
 
 //----------------------------------------
@@ -83,7 +79,7 @@ function gotBreakupsPerDay2005(bpd05){
   } 
   nAssetsToLoad--;
   var KOS = null; 
-  DH  = new DumpsterHistogram (font6, bpd05, 0, HEART_WALL_B, DUMPSTER_APP_W, HISTOGRAM_H, KOS);
+  DH  = new DumpsterHistogram (bpd05, 0, HEART_WALL_B, DUMPSTER_APP_W, HISTOGRAM_H, KOS);
 }
 
 

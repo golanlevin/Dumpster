@@ -6,22 +6,7 @@ class HistogramDatum {
   }
 }
 
-
 class DumpsterHistogram {
-
-  /*
-  int key;
-
-  boolean bUseBackgroundImage;
-  PImage histbg;
-
-  HistogramDatum data[];
-  int nData, nDatam1;
-  KnowerOfSelections		KOS;
-  */
-  
-
-
 
   //-------------------------------------------------------------
   constructor (bpd05, x, y, w, h, kos) {
@@ -37,7 +22,6 @@ class DumpsterHistogram {
     this.xoffset = x;
     this.yoffset = y;
 
-    // font6 = f6;
     this.monthLengths2005 = [
         0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31];
     this.bandNames = [
@@ -56,6 +40,7 @@ class DumpsterHistogram {
     this.mouseYf = 0;
     this.bMousePressed = false;
     this.bUseMouseYMagnification = true;
+    this.bUseBackgroundImage = false;
 
     this.curdat_r = 0;
     this.curdat_g = 0;
@@ -74,6 +59,7 @@ class DumpsterHistogram {
     this.prevMajorLabelSkip = 250;
     this.labelSkipTime      = 0;
 
+    print("Created DumpsterHistogram.");
   }
 
   //-------------------------------------------------------------
@@ -327,10 +313,10 @@ class DumpsterHistogram {
     if (visibility < 1.0) {
   
       // fade labels in and out
-      float sgr =       visibility*(vertBgCol-vertLnCol) + vertLnCol;
-      float tgr =       visibility*(vertBgCol-vertTxCol) + vertTxCol;
-      float shr = (1.0-visibility)*(vertBgCol-vertLnCol) + vertLnCol;
-      float thr = (1.0-visibility)*(vertBgCol-vertTxCol) + vertTxCol;
+      var sgr =       visibility*(vertBgCol-vertLnCol) + vertLnCol;
+      var tgr =       visibility*(vertBgCol-vertTxCol) + vertTxCol;
+      var shr = (1.0-visibility)*(vertBgCol-vertLnCol) + vertLnCol;
+      var thr = (1.0-visibility)*(vertBgCol-vertTxCol) + vertTxCol;
 
       // previous ones
       labelY = vertB - spaceSizePrev; 
@@ -512,251 +498,244 @@ class DumpsterHistogram {
   }
   
     
-    /*
-    //-------------------------------------------------------------
-    void loop() {
+  //-------------------------------------------------------------
+  loop() {
+    updateMouseInformation();       // DONE
+    updateHistogramVerticalScale(); // DONE
+    this.dataIndexOfCursor = pixelToDataIndex (floor(this.mouseXf));
+
+    drawBackground();               // DONE
+    drawHistogramData();            // DONE
+    drawCurrentDataBounds();        // DONE
+    drawBands();                    // DONE
+    drawOverallFrames();            // DONE
+  }
+
   
-      updateMouseInformation();
-      updateHistogramVerticalScale(); // DONE
-      this.dataIndexOfCursor = pixelToDataIndex (floor(this.mouseXf));
-  
-      drawBackground();
-      drawHistogramData();            // DONE
-      drawCurrentDataBounds();        // DONE
-      drawBands();
-      drawOverallFrames();
+  //-------------------------------------------------------------
+  drawCurrentDataBounds() {
+    cursorToPixelBounds();
+
+    var p = this.tmpPixelBounds[0];
+    var q = this.tmpPixelBounds[1];
+    var t = this.tmpPixelBounds[2];
+    this.centerOfBoundsX = min(q, max(p, this.centerOfBoundsX));
+
+    var A = 0.6;
+    var B = 1.0-A;
+    this.centerOfBoundsX = A*this.centerOfBoundsX + B*((p+q)/2.0);
+
+    // stroke(this.CS.bandMouseColor);
+    var bandCurCol = color(this.curdat_r, this.curdat_g, this.curdat_b);
+    stroke(bandCurCol);
+    line (this.centerOfBoundsX, t, this.centerOfBoundsX, this.histogramT);
+
+    textFont (font6, 6);
+    fill(bandCurCol); //this.CS.dateLabelColor); 
+    var strY = this.histogramT + 9;
+
+    var nbupCh = 0;
+    var nbupStr = "";
+    if ((this.dataIndexOfCursor >= 0) && (this.dataIndexOfCursor < this.nData)) {
+      nbupStr += data[this.dataIndexOfCursor].N;
+      nbupCh  = nbupStr.length();
     }
-    */
+    var dateString = dataIndexToDateString(this.dataIndexOfCursor);
+
+    if ((this.histogramR - this.centerOfBoundsX) > 52) {
+      text(dateString, this.centerOfBoundsX+4, strY); 
+      text(nbupStr, this.centerOfBoundsX-nbupCh*6+1, strY);
+    } 
+    else {
+      text(dateString, this.centerOfBoundsX-42, strY); 
+      text(nbupStr, this.centerOfBoundsX+4, strY);
+    }
+  }
 
   
-    //-------------------------------------------------------------
-    drawCurrentDataBounds() {
-      cursorToPixelBounds();
-  
-      var p = this.tmpPixelBounds[0];
-      var q = this.tmpPixelBounds[1];
-      var t = this.tmpPixelBounds[2];
-      this.centerOfBoundsX = min(q, max(p, this.centerOfBoundsX));
-  
-      var A = 0.6;
-      var B = 1.0-A;
-      this.centerOfBoundsX = A*this.centerOfBoundsX + B*((p+q)/2.0);
-  
-      // stroke(this.CS.bandMouseColor);
-      var bandCurCol = color(this.curdat_r, this.curdat_g, this.curdat_b);
-      stroke(bandCurCol);
-      line (this.centerOfBoundsX, t, this.centerOfBoundsX, this.histogramT);
-  
-      textFont (font6, 6);
-      fill(bandCurCol); //this.CS.dateLabelColor); 
-      var strY = this.histogramT + 9;
-  
-      var nbupCh = 0;
-      var nbupStr = "";
-      if ((this.dataIndexOfCursor >= 0) && (this.dataIndexOfCursor < nData)) {
-        nbupStr += data[this.dataIndexOfCursor].N;
-        nbupCh  = nbupStr.length();
+  //-------------------------------------------------------------
+  informOfMouse(x, y, p) {
+
+    const NONE = 0;
+    const OVER = 1;
+    const SELE = 2;
+    const MAUS = 3;
+
+    this.bMouseInside = false;
+    if ((y >=  this.histogramT) && 
+        (x <=  this.histogramR) && 
+        (x >=  this.histogramL) && 
+        (y <= (this.histogramT + HISTOGRAM_H))) {
+
+      this.bMouseInside = true;
+      this.mouseX = min(this.histogramR, x);
+
+      if (this.bUseMouseYMagnification) {
+        this.mouseY = y;
+      } else {
+        this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
       }
-      var dateString = dataIndexToDateString(this.dataIndexOfCursor);
-  
-      if ((this.histogramR - this.centerOfBoundsX) > 52) {
-        text(dateString, this.centerOfBoundsX+4, strY); 
-        text(nbupStr, this.centerOfBoundsX-nbupCh*6+1, strY);
-      } 
-      else {
-        text(dateString, this.centerOfBoundsX-42, strY); 
-        text(nbupStr, this.centerOfBoundsX+4, strY);
-      }
+      this.bMousePressed = p;
+      this.hiliteMode = MAUS;
     }
 
-    
-    //-------------------------------------------------------------
-    informOfMouse(x, y, p) {
+    //---------------------------
+    if (this.bMouseInside == false) {
 
-      const NONE = 0;
-      const OVER = 1;
-      const SELE = 2;
-      const MAUS = 3;
+      // hack, use the KOS to obtain a fake mouse position
+      var breakupIndex = DUMPSTER_INVALID;
+      var moBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var moBreakupIndex = KOS.currentMouseoverBreakupId;
+      var seBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var seBreakupIndex = KOS.currentSelectedBreakupId;
 
-      this.bMouseInside = false;
-      if ((y >=  this.histogramT) && 
-          (x <=  this.histogramR) && 
-          (x >=  this.histogramL) && 
-          (y <= (this.histogramT + HISTOGRAM_H))) {
-  
-        this.bMouseInside = true;
-        this.mouseX = min(this.histogramR, x);
-
-        if (this.bUseMouseYMagnification) {
-          this.mouseY = y;
-        } else {
-          this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
-        }
-        this.bMousePressed = p;
-        this.hiliteMode = MAUS;
-      }
-  
-      //---------------------------
-      if (this.bMouseInside == false) {
-
-        // hack, use the KOS to obtain a fake mouse position
-        var breakupIndex = DUMPSTER_INVALID;
-        var moBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var moBreakupIndex = KOS.currentMouseoverBreakupId;
-        var seBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var seBreakupIndex = KOS.currentSelectedBreakupId;
-
-        if (moBreakupIndex != DUMPSTER_INVALID) {
-          if (moBreakupIndex == seBreakupIndex) {
-            breakupIndex = seBreakupIndex;
-            this.hiliteMode = SELE;
-          } 
-          else {
-            breakupIndex = moBreakupIndex;
-            this.hiliteMode = OVER;
-          }
+      if (moBreakupIndex != DUMPSTER_INVALID) {
+        if (moBreakupIndex == seBreakupIndex) {
+          breakupIndex = seBreakupIndex;
+          this.hiliteMode = SELE;
         } 
         else {
-          if (seBreakupIndex != DUMPSTER_INVALID) {
-            breakupIndex = seBreakupIndex;
-            this.hiliteMode = SELE;
-          } 
-          else {
-            breakupIndex = DUMPSTER_INVALID;
-            this.hiliteMode = NONE;
-          }
+          breakupIndex = moBreakupIndex;
+          this.hiliteMode = OVER;
         }
-
-        if (breakupIndex != DUMPSTER_INVALID) {
-          var breakupDate = BM.bups[breakupIndex].date;
-          var kosDateFrac = breakupDate / (this.ndexHi-1);
-          kosDateFrac = max(0, min(1, kosDateFrac));
-  
-          this.mouseX = this.histogramL + kosDateFrac*(this.histogramR-this.histogramL);
-          this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
-        }
-      }
-  
-      switch (hiliteMode) {
-        case NONE:
-        case MAUS:
-          this.curdat_rT = red(this.CS.bandMouseColor);
-          this.curdat_gT = green(this.CS.bandMouseColor);
-          this.curdat_bT = blue(this.CS.bandMouseColor);
-          break;
-        case OVER:
-          this.curdat_rT = 16;
-          this.curdat_gT = 64;
-          this.curdat_bT = 255;
-          break;
-        case SELE:
-          this.curdat_rT = 255;
-          this.curdat_gT = 255;
-          this.curdat_bT = 0;
-          break;
-      }
-  
-      this.curdat_r = DH_BLURA*this.curdat_r  + DH_BLURB*this.curdat_rT;
-      this.curdat_g = DH_BLURA*this.curdat_g  + DH_BLURB*this.curdat_gT;
-      this.curdat_b = DH_BLURA*this.curdat_b  + DH_BLURB*this.curdat_bT;
-    }
-
-
-    /* ////
-
-
-    //-------------------------------------------------------------
-    updateMouseInformation() {
-  
-      float A = this.mouseBlur;
-      float B = 1.0f - A;
-      boolean shiftKeyDown = (this.KeyPressed && (key==16));
-      boolean ctrlKeyDown  = (this.bKeyPressed && (key==17));
-      if (shiftKeyDown == false) {
-        this.mouseXf = A*this.mouseXf + B*this.mouseX;
-      }
-      if (ctrlKeyDown == false) {
-        mouseYf = A*this.mouseYf + B*this.mouseY;
-      }
-  
-      if (this.bUseMouseYMagnification) {
-        float fracmy = (float)(this.mouseYf-this.histogramT)/(float)this.histogramH;
-        fracmy = min(1.0f, max(0.0f, fracmy));
-        fracmy = (float)pow(fracmy, 2.0f);
-        this.mousePower = fracmy * 0.75f + 2.0f;
       } 
       else {
-        this.mousePower = 2.0f; // thus mousePower is no longer dependent on this.mouseY;
+        if (seBreakupIndex != DUMPSTER_INVALID) {
+          breakupIndex = seBreakupIndex;
+          this.hiliteMode = SELE;
+        } 
+        else {
+          breakupIndex = DUMPSTER_INVALID;
+          this.hiliteMode = NONE;
+        }
       }
-  
-      this.mousePivot = (float)(this.mouseXf - this.histogramL)/(float)this.histogramW;
-      this.mousePivot = max(0.0000001f, min(0.999999f, this.mousePivot));
-    }
-  
-    
-  
-    //-------------------------------------------------------------
-    drawBackground() {
-      if (true){//bUseBackgroundImage) {
-        image(histbgImg, this.histogramL, this.histogramT); //
-        stroke(255, 200, 200, 24);
-        line(this.histogramL, this.histogramT+1, this.histogramR, this.histogramT+1);
-      } 
-      else {
-        noStroke();
-        fill(this.CS.histogramBackgroundFieldCol);
-        rect(this.histogramL, this.histogramT, this.histogramW, this.histogramH); 
-        stroke(255, 200, 200, 24);
-        line(this.histogramL, this.histogramT+1, this.histogramR, this.histogramT+1);
+
+      if (breakupIndex != DUMPSTER_INVALID) {
+        var breakupDate = BM.bups[breakupIndex].date;
+        var kosDateFrac = breakupDate / (this.ndexHi-1);
+        kosDateFrac = max(0, min(1, kosDateFrac));
+
+        this.mouseX = this.histogramL + kosDateFrac*(this.histogramR-this.histogramL);
+        this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
       }
     }
-    //-------------------------------------------------------------
-    drawBands() {
+
+    switch (hiliteMode) {
+      case NONE:
+      case MAUS:
+        this.curdat_rT = red(this.CS.bandMouseColor);
+        this.curdat_gT = green(this.CS.bandMouseColor);
+        this.curdat_bT = blue(this.CS.bandMouseColor);
+        break;
+      case OVER:
+        this.curdat_rT = 16;
+        this.curdat_gT = 64;
+        this.curdat_bT = 255;
+        break;
+      case SELE:
+        this.curdat_rT = 255;
+        this.curdat_gT = 255;
+        this.curdat_bT = 0;
+        break;
+    }
+
+    this.curdat_r = DH_BLURA*this.curdat_r  + DH_BLURB*this.curdat_rT;
+    this.curdat_g = DH_BLURA*this.curdat_g  + DH_BLURB*this.curdat_gT;
+    this.curdat_b = DH_BLURA*this.curdat_b  + DH_BLURB*this.curdat_bT;
+  }
+
+  //-------------------------------------------------------------
+  updateMouseInformation() {
+
+    var A = this.mouseBlur;
+    var B = 1.0 - A;
+    var shiftKeyDown = (keyIsPressed && (keyCode == 16));
+    var ctrlKeyDown  = (keyIsPressed && (keyCode == 17));
+    if (shiftKeyDown == false) {
+      this.mouseXf = A*this.mouseXf + B*this.mouseX;
+    }
+    if (ctrlKeyDown == false) {
+      mouseYf = A*this.mouseYf + B*this.mouseY;
+    }
+
+    if (this.bUseMouseYMagnification) {
+      var fracmy = float(this.mouseYf-this.histogramT)/float(this.histogramH);
+      fracmy = min(1.0, max(0.0, fracmy));
+      fracmy = pow(fracmy, 2.0);
+      this.mousePower = fracmy * 0.75 + 2.0;
+    } 
+    else {
+      this.mousePower = 2.0; // thus mousePower is no longer dependent on this.mouseY;
+    }
+
+    this.mousePivot = float(this.mouseXf - this.histogramL)/float(this.histogramW);
+    this.mousePivot = max(0.0000001, min(0.999999, this.mousePivot));
+  }
   
-      // draw the scrolling time-axis bands
-      for (int i=0; i<nBands; i++) {
-        bands[i].render();
-        bands[i].drawBoundaries();
+  //-------------------------------------------------------------
+  drawBackground() {
+    if (this.bUseBackgroundImage) {
+      if (histbgImg != null){
+        image(histbgImg, this.histogramL, this.histogramT); 
       }
-  
-      // draw labels for the bands
+      stroke(255, 200, 200, 24);
+      line(this.histogramL, this.histogramT+1, this.histogramR, this.histogramT+1);
+    } 
+    else {
       noStroke();
-      fill(0);
-      rect(xoffset, yoffset, this.histogramL, this.histogramH);
-  
-      fill(64);
-      rect(xoffset, this.histogramB, this.histogramL, 10);
-  
-      fill(128);
-      textMode(MODEL);
-      textFont(font6, 6);
-      text("2005", bands[0].L - 19, bands[0].B - 2);
+      fill(this.CS.histogramBackgroundFieldCol);
+      rect(this.histogramL, this.histogramT, this.histogramW, this.histogramH); 
+      stroke(255, 200, 200, 24);
+      line(this.histogramL, this.histogramT+1, this.histogramR, this.histogramT+1);
     }
-    //-------------------------------------------------------------
-    void drawOverallFrames() {
-      stroke(0);
-      noFill();
-      rect(xoffset, yoffset, width-1, height-1);
-      line(this.histogramL-1, this.histogramT, this.histogramL-1, this.histogramT+height-1);
-      line(xoffset, this.histogramB, this.histogramL, this.histogramB);
+  }
+
+  //-------------------------------------------------------------
+  drawBands() {
+
+    // draw the scrolling time-axis bands
+    for (var i=0; i<this.nBands; i++) {
+      this.bands[i].render();
+      this.bands[i].drawBoundaries();
     }
 
+    // draw labels for the bands
+    noStroke();
+    fill(0);
+    rect(this.xoffset, this.yoffset, this.histogramL, this.histogramH);
 
-        void keyPressed(char k) {
-      key = k;
-      this.bKeyPressed = true;
-      if (key == 'a') {
-        for (int i=0; i<nData; i++) {
-          data[i].N += 10;
-        }
-      } 
-      else if (key == 'b') {
-        for (int i=0; i<nData; i++) {
-          data[i].N -= 10;
-        }
+    fill(64);
+    rect(this.xoffset, this.histogramB, this.histogramL, 10);
+
+    fill(128);
+    textFont(font6, 6);
+    text("2005", this.bands[0].L - 19, this.bands[0].B - 2);
+  }
+
+
+  //-------------------------------------------------------------
+  drawOverallFrames() {
+    stroke(0);
+    noFill();
+    rect(this.xoffset, this.yoffset, this.width-1, this.height-1);
+    line(this.histogramL-1, this.histogramT, this.histogramL-1, this.histogramT + this.height-1);
+    line(xoffset, this.histogramB, this.histogramL, this.histogramB);
+  }
+
+  //-------------------------------------------------------------
+  keyPressed() {
+    if (key == 'a') {
+      for (var i=0; i<this.nData; i++) {
+        data[i].N += 10;
+      }
+    } 
+    else if (key == 'b') {
+      for (var i=0; i<this.nData; i++) {
+        data[i].N -= 10;
       }
     }
-  
+  }
 
-    ///// */
+  
+  
 
 }
 
@@ -914,4 +893,5 @@ class Band {
         break;
     }
   }
+
 }
