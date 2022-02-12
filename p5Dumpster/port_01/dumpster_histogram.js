@@ -10,60 +10,22 @@ class HistogramDatum {
 class DumpsterHistogram {
 
   /*
-  float mouseX;
-  float mouseY;
-  boolean bMousePressed;
-  boolean bKeyPressed;
   int key;
 
-  HistogramColorScheme CS;
-
-  boolean bUseBogusData;
   boolean bUseBackgroundImage;
-  boolean bUseMouseYMagnification;
   PImage histbg;
-
-  float mouseBlur = 0.70f;
-  float mousePivot = 0.5f;
-  float mousePower = 1.0f;
-  int   dataIndexOfCursor;
-  float dataValueOfCursor;
-  float centerOfBoundsX;
-
-  int histogramL, histogramR, histogramW;
-  int histogramT, histogramB, histogramH;
-  float histogramValueScaleFactor;
-  float histogramValueMax;
-  int tmpPixelBounds[];
-
-  int monthStartDays[];
 
   HistogramDatum data[];
   int nData, nDatam1;
-  int indexLo, indexHi;
-
   KnowerOfSelections		KOS;
-
-  private static final int NONE = 0;
-  private static final int OVER = 1;
-  private static final int SELE = 2;
-  private static final int MAUS = 3;
-
-  float curdat_r;
-  float curdat_g;
-  float curdat_b;
-  float curdat_rT;
-  float curdat_gT;
-  float curdat_bT;
   */
   
 
 
 
   //-------------------------------------------------------------
-  constructor (f6, bpd05, x, y, w, h, kos) {
+  constructor (bpd05, x, y, w, h, kos) {
 
-    this.font6 = f6;
     this.KOS = kos; 
     this.breakupsPerDay2005 = bpd05;
 
@@ -92,7 +54,15 @@ class DumpsterHistogram {
     this.CS = new HistogramColorScheme();
     this.mouseXf = 0;
     this.mouseYf = 0;
+    this.bMousePressed = false;
     this.bUseMouseYMagnification = true;
+
+    this.curdat_r = 0;
+    this.curdat_g = 0;
+    this.curdat_b = 0;
+    this.curdat_rT = 0;
+    this.curdat_gT = 0;
+    this.curdat_bT = 0;
 
     this.bUseBogusData = false;
     this.setupDumpsterHistogram();
@@ -212,12 +182,13 @@ class DumpsterHistogram {
     var frac = 0.5;
     if ((index >= this.indexLo) && (index < this.indexHi)) {
       var warped = (this.index - this.indexLo)/(this.indexHi - this.indexLo);
+      var ommp = 1.0-this.mousePivot;
       if (index <= this.dataIndexOfCursor) {
-        frac = mousePivot * (1.0 -  pow((1.0-(warped/mousePivot)), 1.0/this.mousePower));
+        frac = this.mousePivot * (1.0 -  pow((1.0-(warped/this.mousePivot)), 1.0/this.mousePower));
       } else {
-        frac = mousePivot + (1.0-mousePivot)* pow((warped - mousePivot)/(1.0-mousePivot), 1.0/this.mousePower);
+        frac = this.mousePivot + ommp * pow((warped - this.mousePivot)/ommp, 1.0/this.mousePower);
       }
-      pix = round(histogramL + frac*histogramW);
+      pix = round(this.histogramL + frac*this.histogramW);
     }
     return pix;
   }
@@ -243,20 +214,20 @@ class DumpsterHistogram {
    
   //-------------------------------------------------------------
   pixelToDataIndex (hpixel) {
-    var fraca = float(hpixel-histogramL)/ histogramW;
+    var fraca = float(hpixel-this.histogramL)/ this.histogramW;
     fraca = min(1.0, max(0.0, fraca));
     fraca = warpFraction (fraca, this.mousePower);
 
-    var nDataToShowf = float(indexHi - indexLo);
-    var indexa = indexLo + int(floor(fraca * nDataToShowf));
-    indexa = min(indexHi, max(indexLo, indexa));
+    var nDataToShowf = float(this.indexHi - this.indexLo);
+    var indexa = this.indexLo + int(floor(fraca * nDataToShowf));
+    indexa = min(this.indexHi, max(this.indexLo, indexa));
     return indexa;
   }
 
   //-------------------------------------------------------------
   dataIndexToDateString (index) {	
     var out = "";
-    if ((index >= 0) && (index < nData)) {
+    if ((index >= 0) && (index < this.nData)) {
       var monthCount = 0;
       while ( (index > this.monthStartDays[monthCount]) && (monthCount < 12)) {
         monthCount++;
@@ -285,9 +256,9 @@ class DumpsterHistogram {
 
   //-------------------------------------------------------------
   updateHistogramVerticalScale() {
-    this.histogramValueMax  = getMaxDataValueInIndexRange(indexLo, indexHi);
-    this.histogramValueMax  = max(1.0, histogramValueMax);
-    var targetHeight        = histogramH * HISTOGRAM_SPACE_OCCUPANCY;
+    this.histogramValueMax  = getMaxDataValueInIndexRange(this.indexLo, this.indexHi);
+    this.histogramValueMax  = max(1.0, this.histogramValueMax);
+    var targetHeight        = this.histogramH * HISTOGRAM_SPACE_OCCUPANCY;
     this.histogramValueScaleFactor = targetHeight / this.histogramValueMax;
   }
 
@@ -319,7 +290,7 @@ class DumpsterHistogram {
     fill (vertBgCol);
     rect (vertL, vertT, vertW, vertH);
 
-    textFont  (this.font6, 6); // use the global-global version? 
+    textFont  (font6, 6); 
   
     // hunt for the label that fits.
     var prevMLS = this.majorLabelSkip;
@@ -449,17 +420,17 @@ class DumpsterHistogram {
       var  evenWeek; 
       var  evenDay;
       var  nonUnaryRange = false;
-      var  histTshad = floor (histogramT + 0.5*histogramH);
+      var  histTshad = floor (this.histogramT + 0.5*this.histogramH);
   
       var  indexa;
       var  indexb; 
       var  indexRange;
-      var  nDataToShow = indexHi - indexLo;
+      var  nDataToShow = this.indexHi - this.indexLo;
       var  rawDataValue;
   
       var  Y;
       var  nDataToShowf = nDataToShow;
-      var  nXinv = 1.0/(histogramW);
+      var  nXinv = 1.0/(this.histogramW);
   
       var  band0 = this.CS.bandFillColor0;
       var  band1 = this.CS.bandFillColor1;
@@ -496,8 +467,8 @@ class DumpsterHistogram {
         fracb = warpFraction(fracb, this.mousePower);
   
         // compute the bounds of the window-of-days
-        indexa = indexLo + (int)(fraca * nDataToShowf);
-        indexb = indexLo + (int)(fracb * nDataToShowf);
+        indexa = this.indexLo + (int)(fraca * nDataToShowf);
+        indexb = this.indexLo + (int)(fracb * nDataToShowf);
   
         indexa = min(this.nDatam1, max(0, indexa));
         indexb = min(this.nDatam1, max(0, indexb));
@@ -518,7 +489,7 @@ class DumpsterHistogram {
         else {
           localValueMax = data[indexa].N;
         }
-        Y = histogramB - (localValueMax * histogramValueScaleFactor);
+        Y = this.histogramB - (localValueMax * this.histogramValueScaleFactor);
   
 
   
@@ -526,17 +497,17 @@ class DumpsterHistogram {
         bandC = (evenDay && (indexRange == 0)) ? band0 : band1;
   
         if (indexa == this.dataIndexOfCursor) {
-          dataValueOfCursor = localValueMax;
-          tmpPixelBounds[2] = (int)(histogramB - (dataValueOfCursor * histogramValueScaleFactor));
-          tmpPixelBounds[3] = histogramB;
+          this.dataValueOfCursor = localValueMax;
+          this.tmpPixelBounds[2] = (int)(this.histogramB - (this.dataValueOfCursor * this.histogramValueScaleFactor));
+          this.tmpPixelBounds[3] = this.histogramB;
   
           //stroke(bandM);
           stroke(bandCurCol);
-          line(fixi, histogramB, fixi, Y);
+          line(fixi, this.histogramB, fixi, Y);
         } 
         else {
           stroke(bandC);
-          line(fixi, histogramB, fixi, Y);
+          line(fixi, this.histogramB, fixi, Y);
         }
         // improve contrast above data
         stroke(bandP);
@@ -551,7 +522,7 @@ class DumpsterHistogram {
   
       updateMouseInformation();
       updateHistogramVerticalScale();
-      this.dataIndexOfCursor = pixelToDataIndex (floor(mouseXf));
+      this.dataIndexOfCursor = pixelToDataIndex (floor(this.mouseXf));
   
       drawBackground();
       drawHistogramData();
@@ -566,47 +537,53 @@ class DumpsterHistogram {
     void drawCurrentDataBounds() {
       cursorToPixelBounds();
   
-      var p = tmpPixelBounds[0];
-      var q = tmpPixelBounds[1];
-      var t = tmpPixelBounds[2];
-      centerOfBoundsX = min(q, max(p, centerOfBoundsX));
+      var p = this.tmpPixelBounds[0];
+      var q = this.tmpPixelBounds[1];
+      var t = this.tmpPixelBounds[2];
+      this.centerOfBoundsX = min(q, max(p, this.centerOfBoundsX));
   
       float A = 0.6f;
       float B = 1.0f-A;
-      centerOfBoundsX = A*centerOfBoundsX + B*((p+q)/2.0f);
+      this.centerOfBoundsX = A*this.centerOfBoundsX + B*((p+q)/2.0f);
   
-      // stroke(CS.bandMouseColor);
-      int bandCurCol = color(curdat_r, curdat_g, curdat_b);
+      // stroke(this.CS.bandMouseColor);
+      int bandCurCol = color(this.curdat_r, this.curdat_g, this.curdat_b);
       stroke(bandCurCol);
-      line (centerOfBoundsX, t, centerOfBoundsX, histogramT);
+      line (this.centerOfBoundsX, t, this.centerOfBoundsX, this.histogramT);
   
   
       textMode (MODEL) ;
       textFont (font6, 6);
-      fill(bandCurCol); //CS.dateLabelColor); 
-      float strY = histogramT+9;
+      fill(bandCurCol); //this.CS.dateLabelColor); 
+      float strY = this.histogramT+9;
   
       var nbupCh = 0;
       var nbupStr = "";
-      if ((dataIndexOfCursor >= 0) && (dataIndexOfCursor < nData)) {
-        nbupStr += data[dataIndexOfCursor].N;
+      if ((this.dataIndexOfCursor >= 0) && (this.dataIndexOfCursor < nData)) {
+        nbupStr += data[this.dataIndexOfCursor].N;
         nbupCh  = nbupStr.length();
       }
-      var dateString = dataIndexToDateString(dataIndexOfCursor);
+      var dateString = dataIndexToDateString(this.dataIndexOfCursor);
   
   
-      if ((this.histogramR - centerOfBoundsX) > 52) {
-        text(dateString, centerOfBoundsX+4, strY); 
-        text(nbupStr, centerOfBoundsX-nbupCh*6+1, strY);
+      if ((this.histogramR - this.centerOfBoundsX) > 52) {
+        text(dateString, this.centerOfBoundsX+4, strY); 
+        text(nbupStr, this.centerOfBoundsX-nbupCh*6+1, strY);
       } 
       else {
-        text(dateString, centerOfBoundsX-42, strY); 
-        text(nbupStr, centerOfBoundsX+4, strY);
+        text(dateString, this.centerOfBoundsX-42, strY); 
+        text(nbupStr, this.centerOfBoundsX+4, strY);
       }
     }
   
     //-------------------------------------------------------------
     void informOfMouse(float x, float y, boolean p) {
+
+      const NONE = 0;
+      const OVER = 1;
+      const SELE = 2;
+      const MAUS = 3;
+
         this.bMouseInside = false;
         if ((y >= this.histogramT) && 
             (x <= this.histogramR) && 
@@ -616,7 +593,7 @@ class DumpsterHistogram {
             bMouseInside = true;
             this.mouseX = min(this.histogramR, x);
     
-            if (bUseMouseYMagnification) {
+            if (this.bUseMouseYMagnification) {
                 this.mouseY = y;
             } else {
                 this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
@@ -656,20 +633,20 @@ class DumpsterHistogram {
   
             if (breakupIndex != DUMPSTER_INVALID) {
                 var breakupDate = BM.bups[breakupIndex].date;
-                var kosDateFrac = breakupDate / (indexHi-1);
+                var kosDateFrac = breakupDate / (this.ndexHi-1);
                 kosDateFrac = max(0, min(1, kosDateFrac));
         
                 this.mouseX = this.histogramL + kosDateFrac*(this.histogramR-this.histogramL);
-                this.mouseY = this.histogramT + (histogramH * sqrt(0.1));  //0.316..
+                this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
             }
         }
   
         switch (hiliteMode) {
             case NONE:
             case MAUS:
-                this.curdat_rT = red(CS.bandMouseColor);
-                this.curdat_gT = green(CS.bandMouseColor);
-                this.curdat_bT = blue(CS.bandMouseColor);
+                this.curdat_rT = red(this.CS.bandMouseColor);
+                this.curdat_gT = green(this.CS.bandMouseColor);
+                this.curdat_bT = blue(this.CS.bandMouseColor);
                 break;
             case OVER:
                 this.curdat_rT = 16;
@@ -691,29 +668,29 @@ class DumpsterHistogram {
     //-------------------------------------------------------------
     updateMouseInformation() {
   
-      float A = mouseBlur;
+      float A = this.mouseBlur;
       float B = 1.0f - A;
-      boolean shiftKeyDown = (bKeyPressed && (key==16));
-      boolean ctrlKeyDown  = (bKeyPressed && (key==17));
+      boolean shiftKeyDown = (this.KeyPressed && (key==16));
+      boolean ctrlKeyDown  = (this.bKeyPressed && (key==17));
       if (shiftKeyDown == false) {
-        mouseXf = A*mouseXf + B*mouseX;
+        this.mouseXf = A*this.mouseXf + B*this.mouseX;
       }
       if (ctrlKeyDown == false) {
-        mouseYf = A*mouseYf + B*mouseY;
+        mouseYf = A*this.mouseYf + B*this.mouseY;
       }
   
-      if (bUseMouseYMagnification) {
-        float fracmy = (float)(mouseYf-histogramT)/(float)histogramH;
+      if (this.bUseMouseYMagnification) {
+        float fracmy = (float)(this.mouseYf-this.histogramT)/(float)this.histogramH;
         fracmy = min(1.0f, max(0.0f, fracmy));
         fracmy = (float)pow(fracmy, 2.0f);
         this.mousePower = fracmy * 0.75f + 2.0f;
       } 
       else {
-        this.mousePower = 2.0f; // thus mousePower is no longer dependent on mouseY;
+        this.mousePower = 2.0f; // thus mousePower is no longer dependent on this.mouseY;
       }
   
-      this.mousePivot = (float)(mouseXf - histogramL)/(float)histogramW;
-      this.mousePivot = max(0.0000001f, min(0.999999f, mousePivot));
+      this.mousePivot = (float)(this.mouseXf - this.histogramL)/(float)this.histogramW;
+      this.mousePivot = max(0.0000001f, min(0.999999f, this.mousePivot));
     }
   
     
@@ -721,16 +698,16 @@ class DumpsterHistogram {
     //-------------------------------------------------------------
     drawBackground() {
       if (true){//bUseBackgroundImage) {
-        image(histbgImg, histogramL, histogramT); //
+        image(histbgImg, this.histogramL, this.histogramT); //
         stroke(255, 200, 200, 24);
-        line(histogramL, histogramT+1, histogramR, histogramT+1);
+        line(this.histogramL, this.histogramT+1, this.histogramR, this.histogramT+1);
       } 
       else {
         noStroke();
-        fill(CS.histogramBackgroundFieldCol);
-        rect(histogramL, histogramT, histogramW, histogramH); 
+        fill(this.CS.histogramBackgroundFieldCol);
+        rect(this.histogramL, this.histogramT, this.histogramW, this.histogramH); 
         stroke(255, 200, 200, 24);
-        line(histogramL, histogramT+1, histogramR, histogramT+1);
+        line(this.histogramL, this.histogramT+1, this.histogramR, this.histogramT+1);
       }
     }
     //-------------------------------------------------------------
@@ -745,10 +722,10 @@ class DumpsterHistogram {
       // draw labels for the bands
       noStroke();
       fill(0);
-      rect(xoffset, yoffset, histogramL, histogramH);
+      rect(xoffset, yoffset, this.histogramL, this.histogramH);
   
       fill(64);
-      rect(xoffset, histogramB, histogramL, 10);
+      rect(xoffset, this.histogramB, this.histogramL, 10);
   
       fill(128);
       textMode(MODEL);
@@ -760,14 +737,14 @@ class DumpsterHistogram {
       stroke(0);
       noFill();
       rect(xoffset, yoffset, width-1, height-1);
-      line(histogramL-1, histogramT, histogramL-1, histogramT+height-1);
-      line(xoffset, histogramB, histogramL, histogramB);
+      line(this.histogramL-1, this.histogramT, this.histogramL-1, this.histogramT+height-1);
+      line(xoffset, this.histogramB, this.histogramL, this.histogramB);
     }
 
 
         void keyPressed(char k) {
       key = k;
-      bKeyPressed = true;
+      this.bKeyPressed = true;
       if (key == 'a') {
         for (int i=0; i<nData; i++) {
           data[i].N += 10;
@@ -810,10 +787,10 @@ class Band {
   //------------------
   render() {
     noStroke();
-    fill (CS.bandBgCol);
+    fill (this.CS.bandBgCol);
     rect (this.L, this.T, this.W, this.H);
 
-    stroke(CS.bandEdgeColor);
+    stroke(this.CS.bandEdgeColor);
     noFill();
     rect(this.L-1, this.T, this.W+1, this.H);
   }
@@ -835,7 +812,7 @@ class Band {
         // compute the pixel at which the boundary should be drawn.
         boundaryPixel   = dataIndexToPixel (boundaryIndex);
         if (boundaryPixel == -1) {
-          boundaryPixel = histogramR;
+          boundaryPixel = this.histogramR;
         } 
 
         this.boundaryLocs[i]   = boundaryPixel;
@@ -850,12 +827,12 @@ class Band {
       var mid = (top+bot)/2;
       var texbot = bot-1;
 
-      stroke(CS.vertLnCol);
+      stroke(this.CS.vertLnCol);
       textFont(font6);
       textSize(6);
 
-      var txC = CS.vertTxCol;
-      var bgC = CS.bandBgCol;
+      var txC = this.CS.vertTxCol;
+      var bgC = this.CS.bandBgCol;
       var difC = bgC - txC;
       var minSep = 0;
       var maxSep = 80;
@@ -865,7 +842,7 @@ class Band {
       for (var i=0; i<nBoundaries; i++) {
         sep = this.boundarySeps[i];
         loc = this.boundaryLocs[i];
-        if ((loc == 0) && (i==0)) loc = histogramL; // WOW big ERROR
+        if ((loc == 0) && (i==0)) loc = this.histogramL; // WOW big ERROR
 
         if (i > 0) {
           line (loc, top, loc, bot);
@@ -940,5 +917,3 @@ class Band {
     }
   }
 }
-
-
