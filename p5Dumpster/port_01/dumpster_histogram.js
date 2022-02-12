@@ -39,7 +39,7 @@ class DumpsterHistogram {
     this.mouseXf = 0;
     this.mouseYf = 0;
     this.bUseMouseYMagnification = true;
-    this.bUseBackgroundImage = false;
+    this.bUseBackgroundImage = true;
 
     this.curdat_r = 0;
     this.curdat_g = 0;
@@ -75,7 +75,7 @@ class DumpsterHistogram {
         I++;
       }
       this.indexLo = 0;
-      this.indexHi = 364;
+      this.indexHi = this.nDatam1;
 
     } else {
       var nFileLines = breakupsPerDay2005.length;
@@ -92,7 +92,7 @@ class DumpsterHistogram {
     
       this.data[this.nDatam1] = new HistogramDatum(I, 0);
       this.indexLo = 0;
-      this.indexHi = this.nData-1;
+      this.indexHi = this.nDatam1;
     }
 
     this.mouseBlur  = 0.70;
@@ -106,7 +106,7 @@ class DumpsterHistogram {
     this.histogramR = this.xoffset + DUMPSTER_APP_W - 1;
     this.histogramW = this.histogramR - this.histogramL;
     this.histogramT = this.yoffset + 0;
-    this.histogramB = this.yoffset + ((DUMPSTER_APP_H+1)-2 - (this.nBands*this.bandH));
+    this.histogramB = ((DUMPSTER_APP_H+1)-2 - (this.nBands*this.bandH));
     this.histogramH = this.histogramB - this.histogramT;
     this.histogramValueScaleFactor = 1.0;
 
@@ -233,7 +233,7 @@ class DumpsterHistogram {
     var maxInRange = 0;
     var rawDataValue = 0;
     for (var i=loi; i<hii; i++) {
-      rawDataValue = this.data[i].N;
+      rawDataValue = int(this.data[i].N);
       if (rawDataValue > maxInRange) {
         maxInRange = rawDataValue;
       }
@@ -473,7 +473,7 @@ class DumpsterHistogram {
       } else {
         localValueMax = this.data[indexa].N;
       }
-      Y = this.histogramB - (localValueMax * this.histogramValueScaleFactor);
+      Y = this.histogramB - HISTOGRAM_SPACE_OCCUPANCY * map(localValueMax, 0, this.histogramValueMax, 0, this.histogramH); 
 
       evenDay = ((indexa % 2)== 0);
       bandC = (evenDay && (indexRange == 0)) ? band0 : band1;
@@ -500,15 +500,15 @@ class DumpsterHistogram {
     
   //-------------------------------------------------------------
   loop() {
-    this.updateMouseInformation();       // DONE
-    this.updateHistogramVerticalScale(); // DONE
+    this.updateMouseInformation();       
+    this.updateHistogramVerticalScale(); 
     this.dataIndexOfCursor = this.pixelToDataIndex (floor(this.mouseXf));
 
-    this.drawBackground();               // DONE
-    this.drawHistogramData();            // DONE
-    this.drawCurrentDataBounds();        // DONE
-    this.drawBands();                    // DONE
-    this.drawOverallFrames();            // DONE
+    this.drawBackground();               
+    this.drawHistogramData();       
+    this.drawCurrentDataBounds(); 
+    this.drawBands();           
+    this.drawOverallFrames();    
   }
 
   
@@ -578,8 +578,8 @@ class DumpsterHistogram {
 
       // hack, use the KOS to obtain a fake mouse position
       var breakupIndex = DUMPSTER_INVALID;
-      var moBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var moBreakupIndex = KOS.currentMouseoverBreakupId;
-      var seBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var seBreakupIndex = KOS.currentSelectedBreakupId;
+      var moBreakupIndex = 0;/// FIX RESTORE THIS ONCE KOS IS WORKING: var moBreakupIndex = KOS.currentMouseoverBreakupId;
+      var seBreakupIndex = 0;/// FIX RESTORE THIS ONCE KOS IS WORKING: var seBreakupIndex = KOS.currentSelectedBreakupId;
 
       if (moBreakupIndex != DUMPSTER_INVALID) {
         if (moBreakupIndex == seBreakupIndex) {
