@@ -410,132 +410,127 @@ class DumpsterHistogram {
   }
 
 
-    /* ////
-  
-    //-------------------------------------------------------------
-    drawHistogramData(){
-      noSmooth();
-  
-      var  fraca;
-      var  fracb;
-      var  evenWeek; 
-      var  evenDay;
-      var  nonUnaryRange = false;
-      var  histTshad = floor (this.histogramT + 0.5*this.histogramH);
-  
-      var  indexa;
-      var  indexb; 
-      var  indexRange;
-      var  nDataToShow = this.indexHi - this.indexLo;
-      var  rawDataValue;
-  
-      var  Y;
-      var  nDataToShowf = nDataToShow;
-      var  nXinv = 1.0/(this.histogramW);
-  
-      var  band0 = this.CS.bandFillColor0;
-      var  band1 = this.CS.bandFillColor1;
-      var  band2 = this.CS.bandFillColor2;
-      var  bandM = this.CS.bandMouseColor;
-      var  bandP = this.CS.bandCapColor;
-      var  bandC;
-  
-      var  week1 = this.CS.histogramBackgroundColor1;
-      var  week2 = this.CS.histogramBackgroundColor2;
-      var  week3 = this.CS.histogramBackgroundColor3;
-      var  weekC;
-  
-      var  week1s = this.CS.histogramBackgroundColor1s;
-      var  week2s = this.CS.histogramBackgroundColor2s;
-      var  week3s = this.CS.histogramBackgroundColor3s;
-      var  weekS;
-  
-      var  histbgCol = this.CS.histogramBackgroundFieldCol;
-  
-      var  fixi;
-      var  bandCurCol = color(this.curdat_r, this.curdat_g, this.curdat_b);
-    
-      //------------------------------------------
-      // for each pixel across the histogram
-      for (var i=this.histogramL; i<this.histogramR; i++) {
-        fixi = i+0.5;
-  
-        fraca = (i  -this.histogramL)*nXinv;
-        fracb = (i+1-this.histogramL)*nXinv;
-  
-        // non-linearize the view
-        fraca = warpFraction(fraca, this.mousePower);
-        fracb = warpFraction(fracb, this.mousePower);
-  
-        // compute the bounds of the window-of-days
-        indexa = this.indexLo + (int)(fraca * nDataToShowf);
-        indexb = this.indexLo + (int)(fracb * nDataToShowf);
-  
-        indexa = min(this.nDatam1, max(0, indexa));
-        indexb = min(this.nDatam1, max(0, indexb));
-        indexRange = (indexb - indexa);
-        nonUnaryRange = (indexRange > 1);
-  
-        //------------------------------------------
-        // compute the maximum value within the window-of-days
-        var localValueMax = 0;
-        if (nonUnaryRange) {
-          for (var j=indexa; j<=indexb; j++) {
-            rawDataValue = data[j].N;
-            if (rawDataValue > localValueMax) {
-              localValueMax = rawDataValue;
-            }
-          }
-        } 
-        else {
-          localValueMax = data[indexa].N;
-        }
-        Y = this.histogramB - (localValueMax * this.histogramValueScaleFactor);
-  
+  //-------------------------------------------------------------
+  drawHistogramData(){
+    noSmooth();
 
+    var  fraca;
+    var  fracb;
+    var  evenWeek; 
+    var  evenDay;
+    var  nonUnaryRange = false;
+    var  histTshad = floor (this.histogramT + 0.5*this.histogramH);
   
-        evenDay = ((indexa % 2)== 0);
-        bandC = (evenDay && (indexRange == 0)) ? band0 : band1;
+    var  indexa;
+    var  indexb; 
+    var  indexRange;
+    var  nDataToShow = this.indexHi - this.indexLo;
+    var  rawDataValue;
   
-        if (indexa == this.dataIndexOfCursor) {
-          this.dataValueOfCursor = localValueMax;
-          this.tmpPixelBounds[2] = (int)(this.histogramB - (this.dataValueOfCursor * this.histogramValueScaleFactor));
-          this.tmpPixelBounds[3] = this.histogramB;
+    var  Y;
+    var  nDataToShowf = nDataToShow;
+    var  nXinv = 1.0/(this.histogramW);
+
+    var  band0 = this.CS.bandFillColor0;
+    var  band1 = this.CS.bandFillColor1;
+    var  band2 = this.CS.bandFillColor2;
+    var  bandM = this.CS.bandMouseColor;
+    var  bandP = this.CS.bandCapColor;
+    var  bandC;
   
-          //stroke(bandM);
-          stroke(bandCurCol);
-          line(fixi, this.histogramB, fixi, Y);
-        } 
-        else {
-          stroke(bandC);
-          line(fixi, this.histogramB, fixi, Y);
+    var  week1 = this.CS.histogramBackgroundColor1;
+    var  week2 = this.CS.histogramBackgroundColor2;
+    var  week3 = this.CS.histogramBackgroundColor3;
+    var  weekC;
+
+    var  week1s = this.CS.histogramBackgroundColor1s;
+    var  week2s = this.CS.histogramBackgroundColor2s;
+    var  week3s = this.CS.histogramBackgroundColor3s;
+    var  weekS;
+  
+    var  histbgCol = this.CS.histogramBackgroundFieldCol;
+
+    var  fixi;
+    var  bandCurCol = color(this.curdat_r, this.curdat_g, this.curdat_b);
+    
+    //------------------------------------------
+    // for each pixel across the histogram
+    for (var i=this.histogramL; i<this.histogramR; i++) {
+      fixi = i+0.5;
+
+      fraca = (i  -this.histogramL)*nXinv;
+      fracb = (i+1-this.histogramL)*nXinv;
+
+      // non-linearize the view
+      fraca = warpFraction(fraca, this.mousePower);
+      fracb = warpFraction(fracb, this.mousePower);
+
+      // compute the bounds of the window-of-days
+      indexa = this.indexLo + int(fraca * nDataToShowf);
+      indexb = this.indexLo + int(fracb * nDataToShowf);
+
+      indexa = min(this.nDatam1, max(0, indexa));
+      indexb = min(this.nDatam1, max(0, indexb));
+      indexRange = (indexb - indexa);
+      nonUnaryRange = (indexRange > 1);
+  
+      //------------------------------------------
+      // compute the maximum value within the window-of-days
+      var localValueMax = 0;
+      if (nonUnaryRange) {
+        for (var j=indexa; j<=indexb; j++) {
+          rawDataValue = data[j].N;
+          if (rawDataValue > localValueMax) {
+            localValueMax = rawDataValue;
+          }
         }
-        // improve contrast above data
-        stroke(bandP);
-        point(fixi, Y-1);
+      } else {
+        localValueMax = data[indexa].N;
       }
+      Y = this.histogramB - (localValueMax * this.histogramValueScaleFactor);
+
+      evenDay = ((indexa % 2)== 0);
+      bandC = (evenDay && (indexRange == 0)) ? band0 : band1;
+
+      if (indexa == this.dataIndexOfCursor) {
+        this.dataValueOfCursor = localValueMax;
+        this.tmpPixelBounds[2] = int(this.histogramB - (this.dataValueOfCursor * this.histogramValueScaleFactor));
+        this.tmpPixelBounds[3] = this.histogramB;
+
+        //stroke(bandM);
+        stroke(bandCurCol);
+        line(fixi, this.histogramB, fixi, Y);
+
+      } else {
+        stroke(bandC);
+        line(fixi, this.histogramB, fixi, Y);
+      }
+      // improve contrast above data
+      stroke(bandP);
+      point(fixi, Y-1);
     }
+  }
   
     
-  
+    /*
     //-------------------------------------------------------------
     void loop() {
   
       updateMouseInformation();
-      updateHistogramVerticalScale();
+      updateHistogramVerticalScale(); // DONE
       this.dataIndexOfCursor = pixelToDataIndex (floor(this.mouseXf));
   
       drawBackground();
-      drawHistogramData();
-      drawCurrentDataBounds();
+      drawHistogramData();            // DONE
+      drawCurrentDataBounds();        // DONE
       drawBands();
       drawOverallFrames();
     }
-  
-  
+    */
+
   
     //-------------------------------------------------------------
-    void drawCurrentDataBounds() {
+    drawCurrentDataBounds() {
       cursorToPixelBounds();
   
       var p = this.tmpPixelBounds[0];
@@ -543,20 +538,18 @@ class DumpsterHistogram {
       var t = this.tmpPixelBounds[2];
       this.centerOfBoundsX = min(q, max(p, this.centerOfBoundsX));
   
-      float A = 0.6f;
-      float B = 1.0f-A;
-      this.centerOfBoundsX = A*this.centerOfBoundsX + B*((p+q)/2.0f);
+      var A = 0.6;
+      var B = 1.0-A;
+      this.centerOfBoundsX = A*this.centerOfBoundsX + B*((p+q)/2.0);
   
       // stroke(this.CS.bandMouseColor);
-      int bandCurCol = color(this.curdat_r, this.curdat_g, this.curdat_b);
+      var bandCurCol = color(this.curdat_r, this.curdat_g, this.curdat_b);
       stroke(bandCurCol);
       line (this.centerOfBoundsX, t, this.centerOfBoundsX, this.histogramT);
   
-  
-      textMode (MODEL) ;
       textFont (font6, 6);
       fill(bandCurCol); //this.CS.dateLabelColor); 
-      float strY = this.histogramT+9;
+      var strY = this.histogramT + 9;
   
       var nbupCh = 0;
       var nbupStr = "";
@@ -565,7 +558,6 @@ class DumpsterHistogram {
         nbupCh  = nbupStr.length();
       }
       var dateString = dataIndexToDateString(this.dataIndexOfCursor);
-  
   
       if ((this.histogramR - this.centerOfBoundsX) > 52) {
         text(dateString, this.centerOfBoundsX+4, strY); 
@@ -576,95 +568,100 @@ class DumpsterHistogram {
         text(nbupStr, this.centerOfBoundsX+4, strY);
       }
     }
-  
+
+    
     //-------------------------------------------------------------
-    void informOfMouse(float x, float y, boolean p) {
+    informOfMouse(x, y, p) {
 
       const NONE = 0;
       const OVER = 1;
       const SELE = 2;
       const MAUS = 3;
 
-        this.bMouseInside = false;
-        if ((y >= this.histogramT) && 
-            (x <= this.histogramR) && 
-            (x >= this.histogramL) && 
-            (y <= (this.histogramT + HISTOGRAM_H))) {
+      this.bMouseInside = false;
+      if ((y >=  this.histogramT) && 
+          (x <=  this.histogramR) && 
+          (x >=  this.histogramL) && 
+          (y <= (this.histogramT + HISTOGRAM_H))) {
   
-            bMouseInside = true;
-            this.mouseX = min(this.histogramR, x);
-    
-            if (this.bUseMouseYMagnification) {
-                this.mouseY = y;
-            } else {
-                this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
-            }
-            this.bMousePressed = p;
-            this.hiliteMode = MAUS;
-        }
-  
-        //---------------------------
-        if (bMouseInside == false) {
+        this.bMouseInside = true;
+        this.mouseX = min(this.histogramR, x);
 
-            // hack, use the KOS to obtain a fake mouse position
-            var breakupIndex = DUMPSTER_INVALID;
-            var moBreakupIndex = KOS.currentMouseoverBreakupId;
-            var seBreakupIndex = KOS.currentSelectedBreakupId;
+        if (this.bUseMouseYMagnification) {
+          this.mouseY = y;
+        } else {
+          this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
+        }
+        this.bMousePressed = p;
+        this.hiliteMode = MAUS;
+      }
+  
+      //---------------------------
+      if (this.bMouseInside == false) {
 
-            if (moBreakupIndex != DUMPSTER_INVALID) {
-                if (moBreakupIndex == seBreakupIndex) {
-                    breakupIndex = seBreakupIndex;
-                    this.hiliteMode = SELE;
-                } 
-                else {
-                    breakupIndex = moBreakupIndex;
-                    this.hiliteMode = OVER;
-                }
-            } 
-            else {
-                if (seBreakupIndex != DUMPSTER_INVALID) {
-                    breakupIndex = seBreakupIndex;
-                    this.hiliteMode = SELE;
-                } 
-                else {
-                    breakupIndex = DUMPSTER_INVALID;
-                    this.hiliteMode = NONE;
-                }
-            }
-  
-            if (breakupIndex != DUMPSTER_INVALID) {
-                var breakupDate = BM.bups[breakupIndex].date;
-                var kosDateFrac = breakupDate / (this.ndexHi-1);
-                kosDateFrac = max(0, min(1, kosDateFrac));
-        
-                this.mouseX = this.histogramL + kosDateFrac*(this.histogramR-this.histogramL);
-                this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
-            }
+        // hack, use the KOS to obtain a fake mouse position
+        var breakupIndex = DUMPSTER_INVALID;
+        var moBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var moBreakupIndex = KOS.currentMouseoverBreakupId;
+        var seBreakupIndex = 0;/// RESTORE THIS ONCE KOS IS WORKING: var seBreakupIndex = KOS.currentSelectedBreakupId;
+
+        if (moBreakupIndex != DUMPSTER_INVALID) {
+          if (moBreakupIndex == seBreakupIndex) {
+            breakupIndex = seBreakupIndex;
+            this.hiliteMode = SELE;
+          } 
+          else {
+            breakupIndex = moBreakupIndex;
+            this.hiliteMode = OVER;
+          }
+        } 
+        else {
+          if (seBreakupIndex != DUMPSTER_INVALID) {
+            breakupIndex = seBreakupIndex;
+            this.hiliteMode = SELE;
+          } 
+          else {
+            breakupIndex = DUMPSTER_INVALID;
+            this.hiliteMode = NONE;
+          }
         }
+
+        if (breakupIndex != DUMPSTER_INVALID) {
+          var breakupDate = BM.bups[breakupIndex].date;
+          var kosDateFrac = breakupDate / (this.ndexHi-1);
+          kosDateFrac = max(0, min(1, kosDateFrac));
   
-        switch (hiliteMode) {
-            case NONE:
-            case MAUS:
-                this.curdat_rT = red(this.CS.bandMouseColor);
-                this.curdat_gT = green(this.CS.bandMouseColor);
-                this.curdat_bT = blue(this.CS.bandMouseColor);
-                break;
-            case OVER:
-                this.curdat_rT = 16;
-                this.curdat_gT = 64;
-                this.curdat_bT = 255;
-                break;
-            case SELE:
-                this.curdat_rT = 255;
-                this.curdat_gT = 255;
-                this.curdat_bT = 0;
-                break;
+          this.mouseX = this.histogramL + kosDateFrac*(this.histogramR-this.histogramL);
+          this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
         }
+      }
   
-        this.curdat_r = DH_BLURA*this.curdat_r  + DH_BLURB*this.curdat_rT;
-        this.curdat_g = DH_BLURA*this.curdat_g  + DH_BLURB*this.curdat_gT;
-        this.curdat_b = DH_BLURA*this.curdat_b  + DH_BLURB*this.curdat_bT;
+      switch (hiliteMode) {
+        case NONE:
+        case MAUS:
+          this.curdat_rT = red(this.CS.bandMouseColor);
+          this.curdat_gT = green(this.CS.bandMouseColor);
+          this.curdat_bT = blue(this.CS.bandMouseColor);
+          break;
+        case OVER:
+          this.curdat_rT = 16;
+          this.curdat_gT = 64;
+          this.curdat_bT = 255;
+          break;
+        case SELE:
+          this.curdat_rT = 255;
+          this.curdat_gT = 255;
+          this.curdat_bT = 0;
+          break;
+      }
+  
+      this.curdat_r = DH_BLURA*this.curdat_r  + DH_BLURB*this.curdat_rT;
+      this.curdat_g = DH_BLURA*this.curdat_g  + DH_BLURB*this.curdat_gT;
+      this.curdat_b = DH_BLURA*this.curdat_b  + DH_BLURB*this.curdat_bT;
     }
+
+
+    /* ////
+
 
     //-------------------------------------------------------------
     updateMouseInformation() {
