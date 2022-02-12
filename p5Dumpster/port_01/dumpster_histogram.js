@@ -15,7 +15,7 @@ class DumpsterHistogram {
     this.breakupsPerDay2005 = bpd05;
 
     this.bMouseInside = false;
-    this.hiliteMode = 0;
+    this.hiliteMode = DH_HILITEMODE_NONE;
 
     this.width  = w;
     this.height = h;
@@ -38,7 +38,6 @@ class DumpsterHistogram {
     this.CS = new HistogramColorScheme();
     this.mouseXf = 0;
     this.mouseYf = 0;
-    this.bMousePressed = false;
     this.bUseMouseYMagnification = true;
     this.bUseBackgroundImage = false;
 
@@ -90,6 +89,7 @@ class DumpsterHistogram {
         this.data[i] = new HistogramDatum(I, N);
         I++;
       } 
+    
       this.data[this.nDatam1] = new HistogramDatum(I, 0);
       this.indexLo = 0;
       this.indexHi = this.nData-1;
@@ -113,13 +113,13 @@ class DumpsterHistogram {
     this.tmpPixelBounds = [0,0,0,0]; // L,R,T,B
     this.bands = [];
     for (var i=0; i<this.nBands; i++) {
-      this.bands[i] = new Band(i, this.bandNames, this.monthLengths2005);
+      this.bands[i] = new Band(i, this.bandNames, this);
       this.bands[i].setDimensions (
         this.histogramL, 
         (DUMPSTER_APP_H-1 - (this.nBands*this.bandH)) + (this.bandH*i), 
         this.histogramW, 
         this.bandH);
-      this.bands[i].computeBoundaries();
+      this.bands[i].computeBoundaries(this.data, this.nData);
     }
 
     this.monthStartDays = [];
@@ -141,10 +141,10 @@ class DumpsterHistogram {
     var pixela = -1;
     var pixelb = -1;
   
-    pixela = dataIndexToPixel(this.dataIndexOfCursor);
+    pixela = this.dataIndexToPixel(this.dataIndexOfCursor);
     if ((this.dataIndexOfCursor < (this.indexHi-1)) && 
       (mouseXi < (this.histogramR-1))) {
-      pixelb = dataIndexToPixel(this.dataIndexOfCursor+1);
+      pixelb = this.dataIndexToPixel(this.dataIndexOfCursor+1);
     } else {
       pixelb = this.histogramR-1;
     }
@@ -156,7 +156,7 @@ class DumpsterHistogram {
     // note that tmpPixelBounds[2] and [3] are set in drawHistogramData().
     this.tmpPixelBounds[0] = pixela;
     this.tmpPixelBounds[1] = pixelb;
-    return tmpPixelBounds;
+    // return this.tmpPixelBounds;
   }
 
   //-------------------------------------------------------------
@@ -202,7 +202,7 @@ class DumpsterHistogram {
   pixelToDataIndex (hpixel) {
     var fraca = float(hpixel-this.histogramL)/ this.histogramW;
     fraca = min(1.0, max(0.0, fraca));
-    fraca = warpFraction (fraca, this.mousePower);
+    fraca = this.warpFraction (fraca, this.mousePower);
 
     var nDataToShowf = float(this.indexHi - this.indexLo);
     var indexa = this.indexLo + int(floor(fraca * nDataToShowf));
@@ -219,7 +219,8 @@ class DumpsterHistogram {
         monthCount++;
       }
       monthCount--;
-      out = dayNames[index%7] + " " + this.monthNames[(monthCount%12)] + " " + (index - this.monthStartDays[monthCount]);
+      out = this.dayNames[index%7] + " " + 
+            this.monthNames[(monthCount%12)] + " " + (index - this.monthStartDays[monthCount]);
     }
     return out;
   }
@@ -242,7 +243,7 @@ class DumpsterHistogram {
 
   //-------------------------------------------------------------
   updateHistogramVerticalScale() {
-    this.histogramValueMax  = getMaxDataValueInIndexRange(this.indexLo, this.indexHi);
+    this.histogramValueMax  = this.getMaxDataValueInIndexRange(this.indexLo, this.indexHi);
     this.histogramValueMax  = max(1.0, this.histogramValueMax);
     var targetHeight        = this.histogramH * HISTOGRAM_SPACE_OCCUPANCY;
     this.histogramValueScaleFactor = targetHeight / this.histogramValueMax;
@@ -251,7 +252,6 @@ class DumpsterHistogram {
   //-------------------------------------------------------------
   // a surprising amount of code is necessary to render the labels correctly.
   drawHistogramVerticalScale() {
-
     var now = millis();
 
     // dimension the vertical label.
@@ -335,7 +335,7 @@ class DumpsterHistogram {
           vertex(vertR, labelYi);
           endShape();
 
-          nChars = labelStr.length();
+          nChars = labelStr.length;
           text(labelStr, (vertR-nChars*charW-1), labelYi-2);
         }
         labelY -= spaceSizePrev;
@@ -364,7 +364,7 @@ class DumpsterHistogram {
         vertex(0, labelYi);
         endShape();
 
-        nChars = labelStr.length();
+        nChars = labelStr.length;
         text(labelStr, (vertR-nChars*charW-1), labelYi-2);
         labelY -= spaceSizeMaj;
         count++;
@@ -387,7 +387,7 @@ class DumpsterHistogram {
 
         labelInt = int(count * this.majorLabelSkip)
         labelStr = "" + labelInt;
-        nChars = labelStr.length();
+        nChars = labelStr.length;
         text(labelStr, (vertR-nChars*charW-1), labelYi-2);
         labelY -= spaceSizeMaj;
         count++;
@@ -448,8 +448,8 @@ class DumpsterHistogram {
       fracb = (i+1-this.histogramL)*nXinv;
 
       // non-linearize the view
-      fraca = warpFraction(fraca, this.mousePower);
-      fracb = warpFraction(fracb, this.mousePower);
+      fraca = this.warpFraction(fraca, this.mousePower);
+      fracb = this.warpFraction(fracb, this.mousePower);
 
       // compute the bounds of the window-of-days
       indexa = this.indexLo + int(fraca * nDataToShowf);
@@ -465,13 +465,13 @@ class DumpsterHistogram {
       var localValueMax = 0;
       if (nonUnaryRange) {
         for (var j=indexa; j<=indexb; j++) {
-          rawDataValue = data[j].N;
+          rawDataValue = this.data[j].N;
           if (rawDataValue > localValueMax) {
             localValueMax = rawDataValue;
           }
         }
       } else {
-        localValueMax = data[indexa].N;
+        localValueMax = this.data[indexa].N;
       }
       Y = this.histogramB - (localValueMax * this.histogramValueScaleFactor);
 
@@ -500,21 +500,21 @@ class DumpsterHistogram {
     
   //-------------------------------------------------------------
   loop() {
-    updateMouseInformation();       // DONE
-    updateHistogramVerticalScale(); // DONE
-    this.dataIndexOfCursor = pixelToDataIndex (floor(this.mouseXf));
+    this.updateMouseInformation();       // DONE
+    this.updateHistogramVerticalScale(); // DONE
+    this.dataIndexOfCursor = this.pixelToDataIndex (floor(this.mouseXf));
 
-    drawBackground();               // DONE
-    drawHistogramData();            // DONE
-    drawCurrentDataBounds();        // DONE
-    drawBands();                    // DONE
-    drawOverallFrames();            // DONE
+    this.drawBackground();               // DONE
+    this.drawHistogramData();            // DONE
+    this.drawCurrentDataBounds();        // DONE
+    this.drawBands();                    // DONE
+    this.drawOverallFrames();            // DONE
   }
 
   
   //-------------------------------------------------------------
   drawCurrentDataBounds() {
-    cursorToPixelBounds();
+    this.cursorToPixelBounds();
 
     var p = this.tmpPixelBounds[0];
     var q = this.tmpPixelBounds[1];
@@ -537,10 +537,10 @@ class DumpsterHistogram {
     var nbupCh = 0;
     var nbupStr = "";
     if ((this.dataIndexOfCursor >= 0) && (this.dataIndexOfCursor < this.nData)) {
-      nbupStr += data[this.dataIndexOfCursor].N;
-      nbupCh  = nbupStr.length();
+      nbupStr += this.data[this.dataIndexOfCursor].N;
+      nbupCh  = nbupStr.length;
     }
-    var dateString = dataIndexToDateString(this.dataIndexOfCursor);
+    var dateString = this.dataIndexToDateString(this.dataIndexOfCursor);
 
     if ((this.histogramR - this.centerOfBoundsX) > 52) {
       text(dateString, this.centerOfBoundsX+4, strY); 
@@ -552,14 +552,9 @@ class DumpsterHistogram {
     }
   }
 
-  
+
   //-------------------------------------------------------------
   informOfMouse(x, y, p) {
-
-    const NONE = 0;
-    const OVER = 1;
-    const SELE = 2;
-    const MAUS = 3;
 
     this.bMouseInside = false;
     if ((y >=  this.histogramT) && 
@@ -575,8 +570,7 @@ class DumpsterHistogram {
       } else {
         this.mouseY = this.histogramT + (this.histogramH * sqrt(0.1));  //0.316..
       }
-      this.bMousePressed = p;
-      this.hiliteMode = MAUS;
+      this.hiliteMode = DH_HILITEMODE_MAUS;
     }
 
     //---------------------------
@@ -590,27 +584,27 @@ class DumpsterHistogram {
       if (moBreakupIndex != DUMPSTER_INVALID) {
         if (moBreakupIndex == seBreakupIndex) {
           breakupIndex = seBreakupIndex;
-          this.hiliteMode = SELE;
+          this.hiliteMode = DH_HILITEMODE_SELE;
         } 
         else {
           breakupIndex = moBreakupIndex;
-          this.hiliteMode = OVER;
+          this.hiliteMode = DH_HILITEMODE_OVER;
         }
       } 
       else {
         if (seBreakupIndex != DUMPSTER_INVALID) {
           breakupIndex = seBreakupIndex;
-          this.hiliteMode = SELE;
+          this.hiliteMode = DH_HILITEMODE_SELE;
         } 
         else {
           breakupIndex = DUMPSTER_INVALID;
-          this.hiliteMode = NONE;
+          this.hiliteMode = DH_HILITEMODE_NONE;
         }
       }
 
       if (breakupIndex != DUMPSTER_INVALID) {
-        var breakupDate = BM.bups[breakupIndex].date;
-        var kosDateFrac = breakupDate / (this.ndexHi-1);
+        var breakupDate = 0; ////// FIX WHEN BM exists BM.bups[breakupIndex].date;
+        var kosDateFrac = breakupDate / (this.indexHi-1);
         kosDateFrac = max(0, min(1, kosDateFrac));
 
         this.mouseX = this.histogramL + kosDateFrac*(this.histogramR-this.histogramL);
@@ -618,19 +612,19 @@ class DumpsterHistogram {
       }
     }
 
-    switch (hiliteMode) {
-      case NONE:
-      case MAUS:
+    switch (this.hiliteMode) {
+      case DH_HILITEMODE_NONE:
+      case DH_HILITEMODE_MAUS:
         this.curdat_rT = red(this.CS.bandMouseColor);
         this.curdat_gT = green(this.CS.bandMouseColor);
         this.curdat_bT = blue(this.CS.bandMouseColor);
         break;
-      case OVER:
+      case DH_HILITEMODE_OVER:
         this.curdat_rT = 16;
         this.curdat_gT = 64;
         this.curdat_bT = 255;
         break;
-      case SELE:
+      case DH_HILITEMODE_SELE:
         this.curdat_rT = 255;
         this.curdat_gT = 255;
         this.curdat_bT = 0;
@@ -653,7 +647,7 @@ class DumpsterHistogram {
       this.mouseXf = A*this.mouseXf + B*this.mouseX;
     }
     if (ctrlKeyDown == false) {
-      mouseYf = A*this.mouseYf + B*this.mouseY;
+      this.mouseYf = A*this.mouseYf + B*this.mouseY;
     }
 
     if (this.bUseMouseYMagnification) {
@@ -706,8 +700,9 @@ class DumpsterHistogram {
     rect(this.xoffset, this.histogramB, this.histogramL, 10);
 
     fill(128);
+    noSmooth(); 
     textFont(font6, 6);
-    text("2005", this.bands[0].L - 19, this.bands[0].B - 2);
+    text("2005", int(this.bands[0].L - 19), int(this.bands[0].B - 2));
   }
 
 
@@ -717,38 +712,41 @@ class DumpsterHistogram {
     noFill();
     rect(this.xoffset, this.yoffset, this.width-1, this.height-1);
     line(this.histogramL-1, this.histogramT, this.histogramL-1, this.histogramT + this.height-1);
-    line(xoffset, this.histogramB, this.histogramL, this.histogramB);
+    line(this.xoffset, this.histogramB, this.histogramL, this.histogramB);
   }
 
   //-------------------------------------------------------------
   keyPressed() {
     if (key == 'a') {
       for (var i=0; i<this.nData; i++) {
-        data[i].N += 10;
+        this.data[i].N += 10;
       }
     } 
     else if (key == 'b') {
       for (var i=0; i<this.nData; i++) {
-        data[i].N -= 10;
+        this.data[i].N -= 10;
       }
     }
   }
 
   
-  
-
 }
-
 
 
 //-------------------------------------------------------------
 class Band {
 
-  constructor (position, bandNames, ml05) {
+  constructor (position, bandNames, thedh){ //ml05) {
+    this.dh = thedh; 
     this.ID = position;
     this.name = bandNames[this.ID];
+    this.nBoundaries = [];
+    this.monthLengths2005 = this.dh.monthLengths2005; //ml05;
+
+    this.boundaries = [];
+    this.boundaryLocs = [];
+    this.boundarySeps = [];
     this.nBoundaries = 0;
-    this.monthLengths2005 = ml05;
   }
 
   //------------------
@@ -764,17 +762,17 @@ class Band {
   //------------------
   render() {
     noStroke();
-    fill (this.CS.bandBgCol);
+    fill (this.dh.CS.bandBgCol);
     rect (this.L, this.T, this.W, this.H);
 
-    stroke(this.CS.bandEdgeColor);
+    stroke(this.dh.CS.bandEdgeColor);
     noFill();
     rect(this.L-1, this.T, this.W+1, this.H);
   }
   
   //------------------
   drawBoundaries() {
-    if (nBoundaries > 0) {
+    if (this.dh.nBoundaries > 0) {
 
       var boundaryIndex;
       var boundaryPixel = 0;
@@ -787,9 +785,9 @@ class Band {
         boundaryIndex = this.boundaries[i];
 
         // compute the pixel at which the boundary should be drawn.
-        boundaryPixel   = dataIndexToPixel (boundaryIndex);
+        boundaryPixel   = this.dh.dataIndexToPixel (boundaryIndex);
         if (boundaryPixel == -1) {
-          boundaryPixel = this.histogramR;
+          boundaryPixel = this.dh.histogramR;
         } 
 
         this.boundaryLocs[i]   = boundaryPixel;
@@ -804,12 +802,12 @@ class Band {
       var mid = (top+bot)/2;
       var texbot = bot-1;
 
-      stroke(this.CS.vertLnCol);
+      stroke(this.dh.CS.vertLnCol);
       textFont(font6);
       textSize(6);
 
-      var txC = this.CS.vertTxCol;
-      var bgC = this.CS.bandBgCol;
+      var txC = this.dh.CS.vertTxCol;
+      var bgC = this.dh.CS.bandBgCol;
       var difC = bgC - txC;
       var minSep = 0;
       var maxSep = 80;
@@ -819,7 +817,7 @@ class Band {
       for (var i=0; i<nBoundaries; i++) {
         sep = this.boundarySeps[i];
         loc = this.boundaryLocs[i];
-        if ((loc == 0) && (i==0)) loc = this.histogramL; // WOW big ERROR
+        if ((loc == 0) && (i==0)) loc = this.dh.histogramL; // WOW big ERROR
 
         if (i > 0) {
           line (loc, top, loc, bot);
@@ -828,19 +826,22 @@ class Band {
         texfrac = max(0, min((sep-minSep), maxSep))/maxSep;
         texfill = txC + difC*(1.0 - texfrac);
         fill (0, 0, 0);//texfill);
-        text(this.monthNames[i%12], loc+3, texbot);
+        text(this.dh.monthNames[i%12], loc+3, texbot);
       }
     }
   }
   
   
   //------------------
-  computeBoundaries() {
+  computeBoundaries(dhdata, dhndata) {
 
     // compute the days at which there are scale-specific data boundaries.
     // for example, multiples of 7 for weeks, month-boundaries, and year-boundaries.
     // weeks are the finest level of granularity we care about here.
-    var maxPossibleNboundaries = this.nData;
+    var maxPossibleNboundaries = dhndata;
+    // print("this.dh = " + this.dh);
+
+    var nMos = this.dh.monthLengths2005.length;
     this.boundaries = [];
     this.boundaryLocs = [];
     this.boundarySeps = [];
@@ -856,7 +857,7 @@ class Band {
         
       //--------------
       case 1: // WEEKS
-        for (var i=0; i<this.nData; i++) {
+        for (var i=0; i<dhndata; i++) {
           if (i%7 == 0) {
             this.boundaries[count] = i;
             count++;
@@ -868,9 +869,8 @@ class Band {
       //--------------
       case 0: // MONTHS
         var dayCount = 0;
-        var nMos = this.monthLengths2005.length;
         for (var i=0; i<nMos; i++) {
-          dayCount += this.monthLengths2005[i];
+          dayCount += this.dh.monthLengths2005[i];
           this.boundaries[count] = dayCount;
           count++;
         }
@@ -879,7 +879,7 @@ class Band {
     
       //--------------
       case -1: // YEARS
-        for (var i=0; i<this.nData; i++) {
+        for (var i=0; i<dhndata; i++) {
           if (i%365 == 0) {
             this.boundaries[count] = i;
             count++;

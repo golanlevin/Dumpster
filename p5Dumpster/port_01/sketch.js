@@ -106,6 +106,11 @@ function draw(){
     HM.performScheduledShuffling();
     */
 
+    // DumpsterHistogram
+    DH.informOfMouse(mouseX, mouseY, mouseIsPressed);
+    DH.loop();
+
+
     // var nPoints = textBigramUmapEmbeddings3D.getRowCount(); 
     // var px = textBigramUmapEmbeddings3D.getNum(i, 1);
     // var py = textBigramUmapEmbeddings3D.getNum(i, 2);
@@ -119,12 +124,13 @@ function draw(){
     textFont('Georgia'); 
     textStyle(ITALIC);
     textSize(10);
-
+    fill(255); 
   
     var filenames = Object.keys(Files);
     var nFiles = filenames.length;
     var idx = int(floor(map(mouseX, 0, width, 0, nFiles)));
     var breakupTextPath = filenames[idx];
+    
     if (breakupTextPath){
       text(breakupTextPath,20,30);
       text(breakupSummaryLengths.bytes[idx], 20, 50); 
@@ -134,9 +140,7 @@ function draw(){
       }
     }
 
-    
-    
-    //}
+
 
   }
 }

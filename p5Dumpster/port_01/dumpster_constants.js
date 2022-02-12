@@ -4,6 +4,12 @@ const   DUMPSTER_APP_W     = 1280;
 const   DUMPSTER_APP_H     = 800;
 
 //----------------------------------
+const   DH_HILITEMODE_NONE = 0;
+const   DH_HILITEMODE_OVER = 1;
+const   DH_HILITEMODE_SELE = 2;
+const   DH_HILITEMODE_MAUS = 3;
+
+//----------------------------------
 const   MAX_N_BALLOONS     = 14;
 const   HISTOGRAM_SPACE_OCCUPANCY = 0.85;
 const   DUMPSTER_LONELY_TIME = 5000;
