@@ -290,7 +290,7 @@ class DumpsterHistogram {
     fill (vertBgCol);
     rect (vertL, vertT, vertW, vertH);
 
-    textFont  (font6, 6); 
+    textFont (font6, 6); 
   
     // hunt for the label that fits.
     var prevMLS = this.majorLabelSkip;
@@ -316,97 +316,98 @@ class DumpsterHistogram {
     var spaceSizeMaj  = this.majorLabelSkip * this.histogramValueScaleFactor;
     var spaceSizePrev = this.prevMajorLabelSkip * this.histogramValueScaleFactor;
   
-      /*
-      // draw the main labels.
-      int count;
-      int nChars;
-      float labelY;
-      String labelStr;
-      float visibility = (float)(now - this.labelSkipTime)/this.FADE_LABEL_TIME; /// 0...->1
-      if (visibility < 1.0) {
+    
+    // draw the main labels.
+    var count;
+    var nChars;
+    var labelY;
+    var labelStr;
+    var labelInt;
+    var visibility = float(now - this.labelSkipTime)/this.FADE_LABEL_TIME; /// 0...->1
+    if (visibility < 1.0) {
   
-        // fade labels in and out
-        float sgr =       visibility*(vertBgCol-vertLnCol)  + vertLnCol;
-        float tgr =       visibility*(vertBgCol-vertTxCol)  + vertTxCol;
-        float shr = (1.0-visibility)*(vertBgCol-vertLnCol)  + vertLnCol;
-        float thr = (1.0-visibility)*(vertBgCol-vertTxCol)  + vertTxCol;
-  
-        // previous ones
-        labelY = vertB - spaceSizePrev; 
-        count = 1;
-        fill  (tgr, tgr, tgr);
-        while (labelY > vertTextT) {
-          int labelInt = count * this.prevMajorLabelSkip;
-          if ((labelInt%majorLabelSkip) != 0) {
-            int labelYi = (int)round(labelY);
-            beginShape(LINES);
-            stroke(vertBgCol);
-            vertex(0, labelYi);
-            stroke(sgr, sgr, sgr);
-            vertex(vertR, labelYi);
-            endShape();
-  
-            labelStr = String.valueOf(labelInt);
-            nChars = labelStr.length();
-            text(labelStr, (vertR-nChars*charW-1), labelYi-2);
-          }
-          labelY -= spaceSizePrev;
-          count++;
-        }
-  
-        // new (current) ones
-        labelY = vertB - spaceSizeMaj; 
-        count = 1;
-        while (labelY > vertTextT) {
-          int labelInt = count*majorLabelSkip;
-          if ((labelInt % this.prevMajorLabelSkip) == 0) {
-            stroke(vertLnCol);
-            fill  (vertTxCol);
-          } 
-          else {
-            stroke(shr, shr, shr);
-            fill  (thr, thr, thr);
-          }
-          int labelYi = (int)round(labelY);
-          beginShape(LINES);
-          vertex(vertR, labelYi);
-          stroke(vertBgCol);
-          vertex(0, labelYi);
-          endShape();
-  
-          labelStr = String.valueOf(labelInt);
-          nChars = labelStr.length();
-          text(labelStr, (vertR-nChars*charW-1), labelYi-2);
-          labelY -= spaceSizeMaj;
-          count++;
-        }
-      } 
-      else {
-        // just draw the labels.
-        labelY = vertB - spaceSizeMaj;
-        count = 1;
-        fill  (vertTxCol);
-        while (labelY > vertTextT) {
-          int labelYi = (int)round(labelY);
-  
+      // fade labels in and out
+      float sgr =       visibility*(vertBgCol-vertLnCol) + vertLnCol;
+      float tgr =       visibility*(vertBgCol-vertTxCol) + vertTxCol;
+      float shr = (1.0-visibility)*(vertBgCol-vertLnCol) + vertLnCol;
+      float thr = (1.0-visibility)*(vertBgCol-vertTxCol) + vertTxCol;
+
+      // previous ones
+      labelY = vertB - spaceSizePrev; 
+      count = 1;
+      fill  (tgr, tgr, tgr);
+      while (labelY > vertTextT) {
+        labelInt = int(count * this.prevMajorLabelSkip);
+        labelStr = "" + labelInt; 
+
+        if ((labelInt%majorLabelSkip) != 0) {
+          var labelYi = int(round(labelY));
           beginShape(LINES);
           stroke(vertBgCol);
           vertex(0, labelYi);
-          stroke(vertLnCol);
+          stroke(sgr, sgr, sgr);
           vertex(vertR, labelYi);
           endShape();
-  
-          labelStr = String.valueOf(count * this.majorLabelSkip);
+
           nChars = labelStr.length();
           text(labelStr, (vertR-nChars*charW-1), labelYi-2);
-          labelY -= spaceSizeMaj;
-          count++;
         }
+        labelY -= spaceSizePrev;
+        count++;
       }
-      */
+  
+      // new (current) ones
+      labelY = vertB - spaceSizeMaj; 
+      count = 1;
+      while (labelY > vertTextT) {
+        labelInt = int(count*majorLabelSkip);
+        labelStr = "" + labelInt; 
 
+        if ((labelInt % this.prevMajorLabelSkip) == 0) {
+          stroke(vertLnCol);
+          fill  (vertTxCol);
+        } 
+        else {
+          stroke(shr, shr, shr);
+          fill  (thr, thr, thr);
+        }
+        var labelYi = int(round(labelY));
+        beginShape(LINES);
+        vertex(vertR, labelYi);
+        stroke(vertBgCol);
+        vertex(0, labelYi);
+        endShape();
 
+        nChars = labelStr.length();
+        text(labelStr, (vertR-nChars*charW-1), labelYi-2);
+        labelY -= spaceSizeMaj;
+        count++;
+      }
+      
+    } else {
+      // just draw the labels.
+      labelY = vertB - spaceSizeMaj;
+      count = 1;
+      fill  (vertTxCol);
+      while (labelY > vertTextT) {
+        var labelYi = int(round(labelY));
+
+        beginShape(LINES);
+        stroke(vertBgCol);
+        vertex(0, labelYi);
+        stroke(vertLnCol);
+        vertex(vertR, labelYi);
+        endShape();
+
+        labelInt = int(count * this.majorLabelSkip)
+        labelStr = "" + labelInt;
+        nChars = labelStr.length();
+        text(labelStr, (vertR-nChars*charW-1), labelYi-2);
+        labelY -= spaceSizeMaj;
+        count++;
+      }
     }
+  }
 
 
     /* ////
