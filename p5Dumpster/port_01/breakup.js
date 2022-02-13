@@ -183,8 +183,8 @@ class Breakup {
       // given the summaryLen, which ranges from 0(3)..255 with average 171,
       // determine the radius of my heart.
       
-      var NBITSPOW  = (float)( Math.log(0.5) / Math.log(3.97/16.0) );
-      var NLENPOW   = (float)( Math.log(0.5) / Math.log(171.0/255.0) );
+      var NBITSPOW  = float( Math.log(0.5) / Math.log(3.97/16.0) );
+      var NLENPOW   = float( Math.log(0.5) / Math.log(171.0/255.0) );
   
       var maxBitsSetf = 12; //CLAMPING: actually, 16 empirical
       var nBitsFrac = Math.min(1.0, this.nBitsSet/maxBitsSetf); 
